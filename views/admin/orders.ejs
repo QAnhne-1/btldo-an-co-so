@@ -1,0 +1,150 @@
+<!-- HEADER & STATUS TABS -->
+<div class="space-y-4">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-black text-slate-900 tracking-tight">Xử Lý & Quản Lý Đơn Hàng</h1>
+      <p class="text-xs text-slate-500 mt-0.5">Tiếp nhận đơn, cập nhật trạng thái kho và kích hoạt bảo hành điện tử</p>
+    </div>
+  </div>
+
+  <!-- STATUS FILTER TABS -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-2 border-b border-slate-200 text-xs font-bold">
+    <a href="/admin/orders" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'all' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      Tất cả đơn
+    </a>
+    <a href="/admin/orders?status=pending" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'pending' ? 'bg-amber-500 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      <i class="fa-solid fa-clock mr-1 text-[10px]"></i> Chờ xử lý (pending)
+    </a>
+    <a href="/admin/orders?status=confirmed" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'confirmed' ? 'bg-sky-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      <i class="fa-solid fa-circle-check mr-1 text-[10px]"></i> Đã xác nhận (confirmed)
+    </a>
+    <a href="/admin/orders?status=shipping" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'shipping' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      <i class="fa-solid fa-truck mr-1 text-[10px]"></i> Đang giao (shipping)
+    </a>
+    <a href="/admin/orders?status=completed" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'completed' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      <i class="fa-solid fa-shield-check mr-1 text-[10px]"></i> Hoàn tất (completed)
+    </a>
+    <a href="/admin/orders?status=cancelled" class="px-4 py-2 rounded-xl transition whitespace-nowrap <%= currentStatus === 'cancelled' ? 'bg-rose-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100' %>">
+      <i class="fa-solid fa-ban mr-1 text-[10px]"></i> Đã hủy (cancelled)
+    </a>
+  </div>
+</div>
+
+<!-- SEARCH BAR -->
+<div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+  <form action="/admin/orders" method="GET" class="flex items-center gap-3">
+    <% if (currentStatus !== 'all') { %>
+      <input type="hidden" name="status" value="<%= currentStatus %>">
+    <% } %>
+    <div class="relative flex-1">
+      <input 
+        type="text" 
+        name="q" 
+        value="<%= query || '' %>"
+        placeholder="Tìm theo Mã đơn (ORD-...), Tên khách hàng hoặc Số điện thoại..." 
+        class="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition"
+      >
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+    </div>
+    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+      Tìm kiếm
+    </button>
+  </form>
+</div>
+
+<!-- ORDERS DATA TABLE -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="py-3.5 px-4">Mã đơn</th>
+          <th class="py-3.5 px-4">Khách hàng & SĐT</th>
+          <th class="py-3.5 px-4">Địa chỉ giao</th>
+          <th class="py-3.5 px-4 text-center">Số món</th>
+          <th class="py-3.5 px-4">Tổng tiền</th>
+          <th class="py-3.5 px-4">Thanh toán</th>
+          <th class="py-3.5 px-4 text-center">Trạng thái</th>
+          <th class="py-3.5 px-4">Ngày tạo</th>
+          <th class="py-3.5 px-4 text-right">Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700">
+        <% if (orders.length > 0) { %>
+          <% orders.forEach(ord => { %>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">
+                <%= ord.order_code %>
+              </td>
+
+              <td class="py-3.5 px-4">
+                <p class="font-bold text-slate-900"><%= ord.customer_name %></p>
+                <p class="text-[11px] text-slate-400 font-mono"><%= ord.customer_phone %></p>
+              </td>
+
+              <td class="py-3.5 px-4 max-w-xs truncate text-slate-600" title="<%= ord.shipping_address %>">
+                <%= ord.shipping_address %>
+              </td>
+
+              <td class="py-3.5 px-4 text-center font-bold text-slate-700">
+                <%= ord.item_count %>
+              </td>
+
+              <td class="py-3.5 px-4 font-black text-slate-900 whitespace-nowrap">
+                <%= formatVND(ord.total_amount) %>
+              </td>
+
+              <td class="py-3.5 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase <%= ord.payment_method === 'banking' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700' %>">
+                  <%= ord.payment_method === 'banking' ? 'Chuyển khoản' : 'COD' %>
+                </span>
+              </td>
+
+              <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                <% if (ord.order_status === 'pending') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                    <i class="fa-solid fa-circle text-[6px] mr-1.5 text-amber-500"></i> Chờ xử lý
+                  </span>
+                <% } else if (ord.order_status === 'confirmed') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">
+                    <i class="fa-solid fa-circle text-[6px] mr-1.5 text-sky-500"></i> Đã xác nhận
+                  </span>
+                <% } else if (ord.order_status === 'shipping') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">
+                    <i class="fa-solid fa-truck text-[8px] mr-1.5 text-indigo-500"></i> Đang giao
+                  </span>
+                <% } else if (ord.order_status === 'completed') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <i class="fa-solid fa-circle-check text-[8px] mr-1.5 text-emerald-500"></i> Hoàn tất
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                    <i class="fa-solid fa-circle-xmark text-[8px] mr-1.5 text-rose-500"></i> Đã hủy
+                  </span>
+                <% } %>
+              </td>
+
+              <td class="py-3.5 px-4 text-slate-500 whitespace-nowrap">
+                <%= formatDate(ord.created_at) %>
+              </td>
+
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <a href="/admin/orders/<%= ord.id %>" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold transition inline-flex items-center gap-1.5">
+                  <i class="fa-solid fa-sliders text-[10px]"></i>
+                  <span>Xử lý</span>
+                </a>
+              </td>
+
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="9" class="py-10 text-center text-slate-400">
+              Không tìm thấy đơn hàng nào phù hợp với bộ lọc hiện tại.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

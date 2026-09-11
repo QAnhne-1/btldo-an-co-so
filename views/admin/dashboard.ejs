@@ -1,0 +1,217 @@
+<!-- METRICS OVERVIEW CARDS -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  
+  <!-- Metric 1: Total Revenue -->
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Doanh thu ghi nhận</p>
+      <h3 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">
+        <%= formatVND(metrics.totalRevenue) %>
+      </h3>
+      <p class="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+        <i class="fa-solid fa-arrow-trend-up"></i>
+        <span>Đơn đã xác nhận & hoàn tất</span>
+      </p>
+    </div>
+    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl flex-shrink-0">
+      <i class="fa-solid fa-wallet"></i>
+    </div>
+  </div>
+
+  <!-- Metric 2: Total Orders -->
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Tổng số đơn hàng</p>
+      <h3 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">
+        <%= metrics.totalOrders %> <span class="text-xs font-semibold text-slate-400">đơn</span>
+      </h3>
+      <p class="text-[11px] text-amber-600 font-semibold mt-1 flex items-center gap-1">
+        <i class="fa-solid fa-clock"></i>
+        <span><%= metrics.statusCounts.pending %> đơn đang chờ xử lý</span>
+      </p>
+    </div>
+    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl flex-shrink-0">
+      <i class="fa-solid fa-box-archive"></i>
+    </div>
+  </div>
+
+  <!-- Metric 3: Active Products -->
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sản phẩm kinh doanh</p>
+      <h3 class="text-2xl font-black text-slate-900 mt-1 tracking-tight">
+        <%= metrics.totalProducts %> <span class="text-xs font-semibold text-slate-400">mặt hàng</span>
+      </h3>
+      <p class="text-[11px] text-indigo-600 font-semibold mt-1 flex items-center gap-1">
+        <i class="fa-solid fa-tags"></i>
+        <span>Đa dạng phiên bản & màu</span>
+      </p>
+    </div>
+    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0">
+      <i class="fa-solid fa-boxes-stacked"></i>
+    </div>
+  </div>
+
+  <!-- Metric 4: Low-stock Warning -->
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+    <div>
+      <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Sắp hết hàng (≤ 5 cái)</p>
+      <h3 class="text-2xl font-black text-rose-600 mt-1 tracking-tight">
+        <%= metrics.lowStockCount %> <span class="text-xs font-semibold text-slate-400">phiên bản</span>
+      </h3>
+      <p class="text-[11px] text-rose-500 font-semibold mt-1 flex items-center gap-1">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span>Cần nhập hàng bổ sung</span>
+      </p>
+    </div>
+    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl flex-shrink-0">
+      <i class="fa-solid fa-arrow-down-wide-short"></i>
+    </div>
+  </div>
+
+</div>
+
+<!-- CẢNH BÁO SẢN PHẨM SẮP HẾT HÀNG (LOW-STOCK WARNING ALERT TABLE) -->
+<% if (lowStockVariants.length > 0) { %>
+  <div class="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
+    <div class="p-5 bg-amber-50/70 border-b border-amber-200/80 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-base shadow-sm">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-amber-950">Cảnh Báo Tồn Kho Sắp Hết (Số lượng tồn ≤ 5)</h2>
+          <p class="text-xs text-amber-700">Các biến thể sản phẩm dưới đây có nguy cơ hết hàng, cần lên kế hoạch nhập thêm</p>
+        </div>
+      </div>
+      <span class="text-xs font-black bg-rose-600 text-white px-2.5 py-1 rounded-full">
+        <%= lowStockVariants.length %> mặt hàng báo động
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+          <tr>
+            <th class="py-3 px-4">Sản phẩm</th>
+            <th class="py-3 px-4">Phiên bản / Màu sắc</th>
+            <th class="py-3 px-4">Mã SKU</th>
+            <th class="py-3 px-4">Giá bán</th>
+            <th class="py-3 px-4 text-center">Tồn kho hiện tại</th>
+            <th class="py-3 px-4 text-right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <% lowStockVariants.forEach(item => { %>
+            <tr class="hover:bg-amber-50/30 transition">
+              <td class="py-3 px-4 flex items-center gap-3">
+                <img src="<%= item.thumbnail %>" alt="<%= item.product_name %>" class="w-9 h-9 rounded-lg object-cover bg-slate-100 border border-slate-200">
+                <span class="font-bold text-slate-900 line-clamp-1"><%= item.product_name %></span>
+              </td>
+              <td class="py-3 px-4 font-semibold text-slate-800"><%= item.variant_name %></td>
+              <td class="py-3 px-4 font-mono text-slate-500"><%= item.sku %></td>
+              <td class="py-3 px-4 font-bold text-slate-800"><%= formatVND(item.price) %></td>
+              <td class="py-3 px-4 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full font-bold text-[11px] <%= item.stock_quantity === 0 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-800' %>">
+                  <i class="fa-solid fa-box mr-1 text-[9px]"></i>
+                  <%= item.stock_quantity %> chiếc
+                </span>
+              </td>
+              <td class="py-3 px-4 text-right">
+                <a href="/admin/products/<%= item.product_id %>/edit" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold transition inline-flex items-center gap-1">
+                  <i class="fa-solid fa-pen-to-square text-[10px]"></i> Cập nhật kho
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<!-- BẢNG ĐƠN HÀNG GẦN ĐÂY (RECENT ORDERS TABLE) -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+    <div>
+      <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i>
+        <span>Đơn Hàng Gần Đây</span>
+      </h2>
+      <p class="text-xs text-slate-400 mt-0.5">Danh sách 10 đơn hàng mới nhất phát sinh trên hệ thống</p>
+    </div>
+    <a href="/admin/orders" class="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1">
+      <span>Xem toàn bộ đơn hàng</span>
+      <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="py-3 px-4">Mã đơn</th>
+          <th class="py-3 px-4">Khách hàng</th>
+          <th class="py-3 px-4">Tổng tiền</th>
+          <th class="py-3 px-4">Thanh toán</th>
+          <th class="py-3 px-4 text-center">Trạng thái</th>
+          <th class="py-3 px-4">Thời gian</th>
+          <th class="py-3 px-4 text-right">Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700">
+        <% if (recentOrders.length > 0) { %>
+          <% recentOrders.forEach(ord => { %>
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3 px-4 font-mono font-bold text-indigo-600"><%= ord.order_code %></td>
+              <td class="py-3 px-4">
+                <p class="font-bold text-slate-900"><%= ord.customer_name %></p>
+                <p class="text-[11px] text-slate-400 font-mono"><%= ord.customer_phone %></p>
+              </td>
+              <td class="py-3 px-4 font-bold text-slate-900"><%= formatVND(ord.total_amount) %></td>
+              <td class="py-3 px-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase <%= ord.payment_method === 'banking' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700' %>">
+                  <%= ord.payment_method === 'banking' ? 'Chuyển khoản' : 'COD' %>
+                </span>
+              </td>
+              <td class="py-3 px-4 text-center">
+                <% if (ord.order_status === 'pending') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                    <i class="fa-solid fa-circle text-[6px] mr-1.5 text-amber-500"></i> Chờ xử lý
+                  </span>
+                <% } else if (ord.order_status === 'confirmed') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">
+                    <i class="fa-solid fa-circle text-[6px] mr-1.5 text-sky-500"></i> Đã xác nhận
+                  </span>
+                <% } else if (ord.order_status === 'shipping') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">
+                    <i class="fa-solid fa-truck text-[8px] mr-1.5 text-indigo-500"></i> Đang giao
+                  </span>
+                <% } else if (ord.order_status === 'completed') { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <i class="fa-solid fa-circle-check text-[8px] mr-1.5 text-emerald-500"></i> Hoàn thành
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                    <i class="fa-solid fa-circle-xmark text-[8px] mr-1.5 text-rose-500"></i> Đã hủy
+                  </span>
+                <% } %>
+              </td>
+              <td class="py-3 px-4 text-slate-500"><%= formatDate(ord.created_at) %></td>
+              <td class="py-3 px-4 text-right">
+                <a href="/admin/orders/<%= ord.id %>" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-indigo-600 text-slate-700 hover:text-white font-bold transition inline-flex items-center gap-1">
+                  <span>Xử lý</span>
+                  <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                </a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" class="py-8 text-center text-slate-400">Chưa có đơn hàng nào phát sinh.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

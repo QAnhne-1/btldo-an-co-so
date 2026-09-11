@@ -1,0 +1,231 @@
+<div class="max-w-5xl mx-auto pb-12 space-y-6">
+  
+  <!-- TOP BACK LINK & HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <a href="/admin/orders" class="text-xs text-indigo-600 hover:underline font-bold flex items-center gap-1 mb-1">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại danh sách đơn hàng
+      </a>
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+          Đơn hàng: <span class="text-indigo-600 font-mono"><%= order.order_code %></span>
+        </h1>
+
+        <!-- Status Badge -->
+        <% if (order.order_status === 'pending') { %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+            <i class="fa-solid fa-circle text-[7px] mr-1.5 text-amber-500"></i> Chờ xử lý (pending)
+          </span>
+        <% } else if (order.order_status === 'confirmed') { %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
+            <i class="fa-solid fa-circle text-[7px] mr-1.5 text-sky-500"></i> Đã xác nhận (confirmed)
+          </span>
+        <% } else if (order.order_status === 'shipping') { %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800">
+            <i class="fa-solid fa-truck text-[9px] mr-1.5 text-indigo-500"></i> Đang giao (shipping)
+          </span>
+        <% } else if (order.order_status === 'completed') { %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            <i class="fa-solid fa-circle-check text-[9px] mr-1.5 text-emerald-500"></i> Hoàn thành (completed)
+          </span>
+        <% } else { %>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+            <i class="fa-solid fa-circle-xmark text-[9px] mr-1.5 text-rose-500"></i> Đã hủy (cancelled)
+          </span>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="text-xs text-slate-400">
+      Đặt lúc: <b class="text-slate-700"><%= formatDate(order.created_at) %></b>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    
+    <!-- CỘT TRÁI: THÔNG TIN KHÁCH & CHI TIẾT CÁC MÓN (2 CỘT) -->
+    <div class="lg:col-span-2 space-y-6">
+      
+      <!-- Thông tin khách hàng & Giao nhận -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <h2 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-user-check text-indigo-600"></i>
+          <span>Thông Tin Người Nhận Hàng</span>
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          <div>
+            <span class="text-slate-400">Họ và tên:</span>
+            <p class="font-bold text-slate-900 text-sm mt-0.5"><%= order.customer_name %></p>
+          </div>
+          <div>
+            <span class="text-slate-400">Số điện thoại:</span>
+            <p class="font-bold text-slate-900 text-sm mt-0.5"><%= order.customer_phone %></p>
+          </div>
+          <div class="sm:col-span-2">
+            <span class="text-slate-400">Địa chỉ giao hàng:</span>
+            <p class="font-semibold text-slate-700 mt-0.5"><%= order.shipping_address %></p>
+          </div>
+          <div>
+            <span class="text-slate-400">Phương thức thanh toán:</span>
+            <p class="font-bold text-slate-800 uppercase mt-0.5">
+              <%= order.payment_method === 'banking' ? 'Chuyển khoản (VietQR)' : 'Thanh toán tiền mặt khi nhận hàng (COD)' %>
+            </p>
+          </div>
+          <div>
+            <span class="text-slate-400">Ghi chú của khách hàng:</span>
+            <p class="font-medium text-slate-600 mt-0.5"><%= order.note || 'Không có ghi chú' %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danh sách mặt hàng & Serial Bảo hành -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-packing text-indigo-600"></i>
+            <span>Các Mặt Hàng Trong Đơn (<%= items.length %> món)</span>
+          </h2>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4">Sản phẩm</th>
+                <th class="py-3 px-4">Phiên bản & SKU</th>
+                <th class="py-3 px-4 text-center">Tồn kho hiện tại</th>
+                <th class="py-3 px-4 text-right">Đơn giá</th>
+                <th class="py-3 px-4 text-center">SL</th>
+                <th class="py-3 px-4 text-right">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+              <% items.forEach(it => { %>
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3.5 px-4 flex items-center gap-3">
+                    <img src="<%= it.thumbnail %>" alt="<%= it.product_name %>" class="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 flex-shrink-0">
+                    <div>
+                      <p class="font-bold text-slate-900 line-clamp-1"><%= it.product_name %></p>
+                      
+                      <!-- Hiển thị Mã Serial Number bảo hành điện tử nếu đã sinh -->
+                      <% if (it.serial_number) { %>
+                        <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono font-bold">
+                          <i class="fa-solid fa-shield-check text-emerald-600"></i>
+                          <span>Serial: <%= it.serial_number %></span>
+                        </div>
+                      <% } %>
+                    </div>
+                  </td>
+
+                  <td class="py-3.5 px-4">
+                    <p class="font-semibold text-slate-800"><%= it.variant_name %></p>
+                    <p class="text-[11px] text-slate-400 font-mono"><%= it.sku %></p>
+                  </td>
+
+                  <td class="py-3.5 px-4 text-center">
+                    <span class="inline-block px-2 py-0.5 rounded font-mono text-[11px] <%= it.current_stock <= 5 ? 'bg-amber-100 text-amber-800 font-bold' : 'bg-slate-100 text-slate-700' %>">
+                      <%= it.current_stock %> cái
+                    </span>
+                  </td>
+
+                  <td class="py-3.5 px-4 text-right font-bold text-slate-700">
+                    <%= formatVND(it.price) %>
+                  </td>
+
+                  <td class="py-3.5 px-4 text-center font-bold text-slate-900">
+                    x<%= it.quantity %>
+                  </td>
+
+                  <td class="py-3.5 px-4 text-right font-black text-indigo-600">
+                    <%= formatVND(it.price * it.quantity) %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CỘT PHẢI: FORM CHUYỂN ĐỔI TRẠNG THÁI VỚI TỰ ĐỘNG HÓA BUSINESS LOGIC (1 CỘT) -->
+    <div class="lg:col-span-1 space-y-6">
+      
+      <!-- Box cập nhật trạng thái -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+        <h2 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-indigo-600"></i>
+          <span>Xử Lý Trạng Thái Đơn Hàng</span>
+        </h2>
+
+        <form action="/admin/orders/<%= order.id %>/status" method="POST" class="space-y-4">
+          
+          <div>
+            <label for="admin-order-status-select" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Chuyển sang trạng thái mới *
+            </label>
+            <select 
+              id="admin-order-status-select" 
+              name="new_status" 
+              required
+              class="w-full px-3 py-2.5 text-xs font-bold bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 transition"
+            >
+              <option value="pending" <%= order.order_status === 'pending' ? 'selected' : '' %>>Chờ xử lý (pending)</option>
+              <option value="confirmed" <%= order.order_status === 'confirmed' ? 'selected' : '' %>>Đã xác nhận (confirmed) [Trừ kho]</option>
+              <option value="shipping" <%= order.order_status === 'shipping' ? 'selected' : '' %>>Đang vận chuyển (shipping)</option>
+              <option value="completed" <%= order.order_status === 'completed' ? 'selected' : '' %>>Hoàn thành (completed) [Kích hoạt Serial BH]</option>
+              <option value="cancelled" <%= order.order_status === 'cancelled' ? 'selected' : '' %>>Hủy đơn hàng (cancelled) [Hoàn kho]</option>
+            </select>
+          </div>
+
+          <!-- Cảnh báo tự động hóa nghiệp vụ (Dynamic Automation Warning) -->
+          <div id="status-automation-warning" class="hidden p-3 rounded-xl text-xs leading-relaxed"></div>
+
+          <div>
+            <label for="admin_note" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              Ghi chú xử lý nội bộ (Tùy chọn)
+            </label>
+            <textarea 
+              id="admin_note" 
+              name="admin_note" 
+              rows="3" 
+              placeholder="VD: Đã liên hệ khách hẹn giao trước 17h..." 
+              class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600 resize-none"
+            ></textarea>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Lưu & Cập Nhật Trạng Thái</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Tóm tắt số tiền -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3 text-xs">
+        <h3 class="font-bold text-slate-800 border-b border-slate-100 pb-2">Tổng kết thanh toán</h3>
+        <div class="flex justify-between text-slate-600">
+          <span>Tiền hàng</span>
+          <span class="font-bold text-slate-800"><%= formatVND(order.total_amount > 500000 ? order.total_amount : order.total_amount - 30000) %></span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>Phí giao hàng</span>
+          <span class="font-bold <%= order.total_amount > 500000 ? 'text-emerald-600' : 'text-slate-800' %>">
+            <%= order.total_amount > 500000 ? 'Miễn phí' : '30.000₫' %>
+          </span>
+        </div>
+        <div class="pt-3 border-t border-slate-100 flex justify-between items-baseline">
+          <span class="text-sm font-black text-slate-900">Tổng cộng</span>
+          <span class="text-xl font-black text-indigo-600"><%= formatVND(order.total_amount) %></span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

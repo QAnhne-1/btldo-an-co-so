@@ -1,0 +1,135 @@
+<!-- HEADER & TOOLBAR -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-xl font-black text-slate-900 tracking-tight">Quản Lý Bảo Hành Điện Tử</h1>
+    <p class="text-xs text-slate-500 mt-0.5">Danh sách mã Serial Number đã phát hành và thời hạn bảo hành của khách hàng</p>
+  </div>
+</div>
+
+<!-- SEARCH & FILTER -->
+<div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+  <form action="/admin/warranties" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="relative sm:col-span-2">
+      <input 
+        type="text" 
+        name="q" 
+        value="<%= query.q || '' %>"
+        placeholder="Tìm theo Mã Serial Number (SN-...), Tên khách hoặc Số điện thoại..." 
+        class="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition"
+      >
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <select 
+        name="status" 
+        onchange="this.form.submit()"
+        class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600"
+      >
+        <option value="">Tất cả trạng thái</option>
+        <option value="valid" <%= query.status === 'valid' ? 'selected' : '' %>>Còn hiệu lực (valid)</option>
+        <option value="expired" <%= query.status === 'expired' ? 'selected' : '' %>>Hết hạn (expired)</option>
+        <option value="void" <%= query.status === 'void' ? 'selected' : '' %>>Bị hủy/Từ chối (void)</option>
+      </select>
+
+      <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+        Lọc
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- WARRANTIES DATA TABLE -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="py-3.5 px-4">Mã Serial Number</th>
+          <th class="py-3.5 px-4">Sản phẩm & Biến thể</th>
+          <th class="py-3.5 px-4">Khách hàng & SĐT</th>
+          <th class="py-3.5 px-4">Đơn hàng gốc</th>
+          <th class="py-3.5 px-4">Ngày kích hoạt</th>
+          <th class="py-3.5 px-4">Ngày hết hạn</th>
+          <th class="py-3.5 px-4 text-center">Thời gian còn lại</th>
+          <th class="py-3.5 px-4 text-right">Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700">
+        <% if (warranties.length > 0) { %>
+          <% warranties.forEach(w => { %>
+            <tr class="hover:bg-slate-50/80 transition">
+              <!-- Serial Number -->
+              <td class="py-3.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">
+                <i class="fa-solid fa-barcode mr-1 text-slate-400"></i>
+                <%= w.serial_number %>
+              </td>
+
+              <!-- Sản phẩm -->
+              <td class="py-3.5 px-4 flex items-center gap-3">
+                <img src="<%= w.thumbnail %>" alt="<%= w.product_name %>" class="w-9 h-9 rounded-lg object-cover bg-slate-100 border border-slate-200 flex-shrink-0">
+                <div class="min-w-0">
+                  <p class="font-bold text-slate-900 line-clamp-1"><%= w.product_name %></p>
+                  <p class="text-[11px] text-slate-400 font-semibold"><%= w.variant_name %></p>
+                </div>
+              </td>
+
+              <!-- Khách hàng -->
+              <td class="py-3.5 px-4">
+                <p class="font-bold text-slate-800"><%= w.customer_name %></p>
+                <p class="text-[11px] text-slate-400 font-mono"><%= w.customer_phone %></p>
+              </td>
+
+              <!-- Đơn hàng gốc -->
+              <td class="py-3.5 px-4 font-mono font-semibold text-slate-600">
+                <%= w.order_code %>
+              </td>
+
+              <!-- Ngày kích hoạt -->
+              <td class="py-3.5 px-4 text-slate-600">
+                <%= formatDate(w.start_date) %>
+              </td>
+
+              <!-- Ngày hết hạn -->
+              <td class="py-3.5 px-4 text-slate-800 font-semibold">
+                <%= formatDate(w.end_date) %>
+              </td>
+
+              <!-- Thời gian còn lại -->
+              <td class="py-3.5 px-4 text-center">
+                <% if (w.remaining_days > 0) { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    <i class="fa-solid fa-clock mr-1 text-[8px]"></i> Còn <%= w.remaining_days %> ngày
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                    Hết hạn
+                  </span>
+                <% } %>
+              </td>
+
+              <!-- Trạng thái -->
+              <td class="py-3.5 px-4 text-right">
+                <% if (w.status === 'valid' && w.remaining_days > 0) { %>
+                  <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Hợp lệ
+                  </span>
+                <% } else { %>
+                  <span class="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-600">
+                    Hết hạn / Hủy
+                  </span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="py-10 text-center text-slate-400">
+              Chưa có bản ghi bảo hành điện tử nào.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

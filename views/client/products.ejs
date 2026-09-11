@@ -1,0 +1,292 @@
+<!-- BREADCRUMB -->
+<nav class="flex items-center gap-2 text-xs text-slate-500 mb-6">
+  <a href="/" class="hover:text-indigo-600 transition"><i class="fa-solid fa-house"></i> Trang chủ</a>
+  <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+  <span class="text-slate-800 font-semibold">Tất cả sản phẩm phụ kiện</span>
+</nav>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+  
+  <!-- SIDEBAR FACETED FILTER (LEFT) -->
+  <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm sticky top-24">
+    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+      <h2 class="font-bold text-base text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-indigo-600 text-sm"></i>
+        <span>Bộ lọc sản phẩm</span>
+      </h2>
+      <% if (filters.category || filters.brand || filters.min_price || filters.max_price || filters.q) { %>
+        <a href="/products" class="text-xs text-rose-600 hover:underline font-semibold">
+          Xóa bộ lọc
+        </a>
+      <% } %>
+    </div>
+
+    <form id="filter-form" action="/products" method="GET" class="space-y-6">
+      
+      <!-- Giữ từ khóa tìm kiếm nếu có -->
+      <% if (filters.q) { %>
+        <input type="hidden" name="q" value="<%= filters.q %>">
+        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+          <span class="truncate">Từ khóa: <b>"<%= filters.q %>"</b></span>
+          <a href="/products?<%= new URLSearchParams({ ...filters, q: '' }).toString().replace(/q=&?/, '') %>" class="text-slate-400 hover:text-rose-500">
+            <i class="fa-solid fa-xmark"></i>
+          </a>
+        </div>
+      <% } %>
+
+      <!-- 1. Lọc theo Danh mục -->
+      <div>
+        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3">Danh mục</h3>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="category" 
+              value="" 
+              <%= !filters.category ? 'checked' : '' %>
+              onchange="this.form.submit()"
+              class="text-indigo-600 focus:ring-indigo-500"
+            >
+            <span>Tất cả danh mục</span>
+          </label>
+
+          <% categories.forEach(cat => { %>
+            <label class="flex items-center justify-between text-xs font-medium text-slate-600 hover:text-indigo-600 cursor-pointer">
+              <div class="flex items-center gap-2">
+                <input 
+                  type="radio" 
+                  name="category" 
+                  value="<%= cat.slug %>" 
+                  <%= filters.category === cat.slug ? 'checked' : '' %>
+                  onchange="this.form.submit()"
+                  class="text-indigo-600 focus:ring-indigo-500"
+                >
+                <span><%= cat.name %></span>
+              </div>
+              <span class="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                <%= cat.product_count || 0 %>
+              </span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- 2. Lọc theo Thương hiệu -->
+      <div class="pt-4 border-t border-slate-100">
+        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3">Thương hiệu</h3>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="brand" 
+              value="" 
+              <%= !filters.brand ? 'checked' : '' %>
+              onchange="this.form.submit()"
+              class="text-indigo-600 focus:ring-indigo-500"
+            >
+            <span>Tất cả thương hiệu</span>
+          </label>
+
+          <% brands.forEach(b => { %>
+            <label class="flex items-center gap-2 text-xs font-medium text-slate-600 hover:text-indigo-600 cursor-pointer">
+              <input 
+                type="radio" 
+                name="brand" 
+                value="<%= b.slug %>" 
+                <%= filters.brand === b.slug ? 'checked' : '' %>
+                onchange="this.form.submit()"
+                class="text-indigo-600 focus:ring-indigo-500"
+              >
+              <span><%= b.name %></span>
+            </label>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- 3. Lọc theo Khoảng giá -->
+      <div class="pt-4 border-t border-slate-100">
+        <h3 class="font-bold text-xs uppercase tracking-wider text-slate-700 mb-3">Khoảng giá</h3>
+        <div class="space-y-2 text-xs">
+          <label class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="price_preset" 
+              value="all"
+              <%= !filters.min_price && !filters.max_price ? 'checked' : '' %>
+              onclick="setPrice('', '')"
+              class="text-indigo-600"
+            >
+            <span>Mọi mức giá</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="price_preset" 
+              value="under-500k"
+              <%= filters.max_price == '500000' ? 'checked' : '' %>
+              onclick="setPrice('', '500000')"
+              class="text-indigo-600"
+            >
+            <span>Dưới 500.000₫</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="price_preset" 
+              value="500k-1m"
+              <%= filters.min_price == '500000' && filters.max_price == '1000000' ? 'checked' : '' %>
+              onclick="setPrice('500000', '1000000')"
+              class="text-indigo-600"
+            >
+            <span>500.000₫ - 1.000.000₫</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="price_preset" 
+              value="1m-3m"
+              <%= filters.min_price == '1000000' && filters.max_price == '3000000' ? 'checked' : '' %>
+              onclick="setPrice('1000000', '3000000')"
+              class="text-indigo-600"
+            >
+            <span>1.000.000₫ - 3.000.000₫</span>
+          </label>
+          <label class="flex items-center gap-2 text-slate-600 hover:text-indigo-600 cursor-pointer">
+            <input 
+              type="radio" 
+              name="price_preset" 
+              value="above-3m"
+              <%= filters.min_price == '3000000' ? 'checked' : '' %>
+              onclick="setPrice('3000000', '')"
+              class="text-indigo-600"
+            >
+            <span>Trên 3.000.000₫</span>
+          </label>
+        </div>
+
+        <input type="hidden" id="filter-min-price" name="min_price" value="<%= filters.min_price || '' %>">
+        <input type="hidden" id="filter-max-price" name="max_price" value="<%= filters.max_price || '' %>">
+      </div>
+
+      <!-- Nút áp dụng -->
+      <button type="submit" class="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-200">
+        Áp dụng bộ lọc
+      </button>
+
+    </form>
+  </div>
+
+  <!-- MAIN PRODUCT GRID (RIGHT) -->
+  <div class="lg:col-span-3">
+    
+    <!-- Top toolbar: Total results and Sort selector -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-lg font-black text-slate-900 tracking-tight">Danh Sách Sản Phẩm</h1>
+        <p class="text-xs text-slate-500">Tìm thấy <b class="text-indigo-600"><%= totalResults %></b> sản phẩm phù hợp</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label for="sort-select" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Sắp xếp theo:</label>
+        <select 
+          id="sort-select" 
+          onchange="changeSort(this.value)"
+          class="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-100"
+        >
+          <option value="" <%= !filters.sort ? 'selected' : '' %>>Mới nhất</option>
+          <option value="price_asc" <%= filters.sort === 'price_asc' ? 'selected' : '' %>>Giá: Thấp đến Cao</option>
+          <option value="price_desc" <%= filters.sort === 'price_desc' ? 'selected' : '' %>>Giá: Cao đến Thấp</option>
+          <option value="name" <%= filters.sort === 'name' ? 'selected' : '' %>>Tên: A -> Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Product Cards Grid -->
+    <% if (products.length > 0) { %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <% products.forEach(prod => { %>
+          <div class="product-card group bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-500/10 transition duration-300 flex flex-col overflow-hidden">
+            
+            <div class="relative bg-slate-100 product-card-img-wrapper overflow-hidden h-60 flex items-center justify-center">
+              <img 
+                src="<%= prod.thumbnail %>" 
+                alt="<%= prod.name %>" 
+                class="w-full h-full object-cover"
+                loading="lazy"
+              >
+              <div class="absolute top-3 left-3 flex flex-col gap-1.5">
+                <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-indigo-600 text-white shadow-sm">
+                  <%= prod.brand_name %>
+                </span>
+              </div>
+
+              <% if (prod.warranty_months) { %>
+                <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                  <i class="fa-solid fa-shield-check mr-1"></i>BH <%= prod.warranty_months %> tháng
+                </div>
+              <% } %>
+            </div>
+
+            <div class="p-5 flex flex-col flex-1">
+              <div class="text-[11px] text-slate-400 uppercase font-semibold mb-1">
+                <%= prod.category_name %>
+              </div>
+
+              <a href="/product/<%= prod.slug %>" class="font-bold text-sm text-slate-800 hover:text-indigo-600 line-clamp-2 transition mb-3 flex-1" title="<%= prod.name %>">
+                <%= prod.name %>
+              </a>
+
+              <div class="pt-3 border-t border-slate-100 flex items-end justify-between">
+                <div>
+                  <p class="text-[10px] text-slate-400 uppercase font-semibold">Giá từ</p>
+                  <p class="text-base font-black text-indigo-600">
+                    <%= formatVND(prod.min_price || 0) %>
+                  </p>
+                </div>
+
+                <a href="/product/<%= prod.slug %>" class="px-3 py-1.5 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 text-indigo-700 group-hover:text-white text-xs font-bold transition flex items-center gap-1.5">
+                  <span>Chọn mua</span>
+                  <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="bg-white p-12 rounded-3xl border border-slate-200 text-center">
+        <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto mb-4">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <h3 class="font-bold text-base text-slate-800">Không tìm thấy sản phẩm nào</h3>
+        <p class="text-xs text-slate-500 max-w-sm mx-auto mt-1 mb-6">
+          Thử nới lỏng các tiêu chí lọc danh mục, khoảng giá hoặc xóa từ khóa tìm kiếm để xem thêm sản phẩm.
+        </p>
+        <a href="/products" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition">
+          <i class="fa-solid fa-rotate-left"></i> Xem tất cả sản phẩm
+        </a>
+      </div>
+    <% } %>
+
+  </div>
+
+</div>
+
+<script>
+  function setPrice(min, max) {
+    document.getElementById('filter-min-price').value = min;
+    document.getElementById('filter-max-price').value = max;
+    document.getElementById('filter-form').submit();
+  }
+
+  function changeSort(val) {
+    const url = new URL(window.location.href);
+    if (val) {
+      url.searchParams.set('sort', val);
+    } else {
+      url.searchParams.delete('sort');
+    }
+    window.location.href = url.toString();
+  }
+</script>

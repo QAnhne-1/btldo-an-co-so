@@ -1,0 +1,166 @@
+<!-- HERO SEARCH SECTION -->
+<div class="max-w-3xl mx-auto text-center py-8">
+  <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-4">
+    <i class="fa-solid fa-shield-check text-sm"></i>
+    Hệ thống tra cứu bảo hành điện tử chính hãng
+  </div>
+
+  <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+    Kiểm Tra Thời Hạn Bảo Hành
+  </h1>
+  <p class="text-sm text-slate-500 mt-2 max-w-lg mx-auto">
+    Nhập mã Serial Number (SN-XXXXXX) in trên sản phẩm / hóa đơn hoặc Số điện thoại bạn đã dùng khi đặt hàng.
+  </p>
+
+  <!-- FORM TRA CỨU -->
+  <div class="mt-8 bg-white p-3 sm:p-4 rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50">
+    <form action="/warranty" method="POST" class="flex flex-col sm:flex-row items-center gap-3">
+      <div class="relative flex-1 w-full">
+        <input 
+          type="text" 
+          name="query" 
+          required 
+          value="<%= queryValue || '' %>"
+          placeholder="Nhập mã Serial (VD: SN-SONY-XM5-98217) hoặc SĐT (VD: 0987654321)..." 
+          class="w-full pl-12 pr-4 py-3.5 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100 outline-none transition"
+        >
+        <i class="fa-solid fa-barcode absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+      </div>
+
+      <button 
+        type="submit" 
+        class="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition duration-200 flex items-center justify-center gap-2 flex-shrink-0"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>Tra cứu ngay</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- GỢI Ý MÃ SERIAL DEMO ĐỂ KIỂM THỬ -->
+  <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-500">
+    <span>Mã thử nghiệm nhanh:</span>
+    <button type="button" onclick="setWarrantyQuery('SN-SONY-XM5-98217')" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-mono text-[11px] transition">
+      SN-SONY-XM5-98217
+    </button>
+    <button type="button" onclick="setWarrantyQuery('0987654321')" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 font-mono text-[11px] transition">
+      0987654321 (SĐT)
+    </button>
+  </div>
+</div>
+
+<!-- KẾT QUẢ TRA CỨU -->
+<% if (searched) { %>
+  <div class="max-w-3xl mx-auto mb-16">
+    <% if (warranties && warranties.length > 0) { %>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500">
+          Kết quả tìm kiếm cho: <span class="text-slate-900 font-mono">"<%= queryValue %>"</span>
+        </h2>
+        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
+          <%= warranties.length %> bản ghi
+        </span>
+      </div>
+
+      <div class="space-y-6">
+        <% warranties.forEach(item => { %>
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-md p-6 sm:p-8 relative overflow-hidden">
+            
+            <!-- Trạng thái dải viền bên trái -->
+            <div class="absolute top-0 left-0 bottom-0 w-2 <%= !item.isExpired ? 'bg-emerald-500' : 'bg-rose-500' %>"></div>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Mã Serial Number</span>
+                <p class="text-xl font-black font-mono text-slate-900 tracking-wider">
+                  <%= item.serial_number %>
+                </p>
+              </div>
+
+              <!-- Badge trạng thái bảo hành -->
+              <div>
+                <% if (!item.isExpired) { %>
+                  <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-xs">
+                    <i class="fa-solid fa-shield-check text-emerald-600"></i>
+                    <span>CÒN BẢO HÀNH (Còn <%= item.remainingDays %> ngày)</span>
+                  </div>
+                <% } else { %>
+                  <div class="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 font-bold text-xs">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                    <span>ĐÃ HẾT HẠN BẢO HÀNH</span>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+
+            <!-- Thông tin sản phẩm & Khách hàng -->
+            <div class="py-5 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              
+              <!-- Cột 1: Sản phẩm -->
+              <div class="flex items-start gap-4">
+                <img src="<%= item.thumbnail %>" alt="<%= item.product_name %>" class="w-16 h-16 rounded-2xl object-cover bg-slate-100 border border-slate-200 flex-shrink-0">
+                <div>
+                  <h3 class="font-bold text-sm text-slate-900 leading-snug"><%= item.product_name %></h3>
+                  <p class="text-slate-500 mt-0.5">Phiên bản: <b class="text-slate-700"><%= item.variant_name %></b></p>
+                  <p class="text-slate-400 font-mono mt-0.5">SKU: <%= item.sku %></p>
+                </div>
+              </div>
+
+              <!-- Cột 2: Thời hạn & Khách hàng -->
+              <div class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Khách hàng:</span>
+                  <span class="font-bold text-slate-800"><%= item.maskedName %> (<%= item.maskedPhone %>)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ngày kích hoạt:</span>
+                  <span class="font-bold text-slate-800"><%= formatDate(item.start_date) %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ngày hết hạn:</span>
+                  <span class="font-bold text-slate-800"><%= formatDate(item.end_date) %></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Mã đơn hàng:</span>
+                  <span class="font-mono font-bold text-indigo-600"><%= item.order_code %></span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Cam kết đổi mới -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span><i class="fa-solid fa-headset text-indigo-600 mr-1"></i> Cần hỗ trợ bảo hành? Liên hệ Hotline <b>1900 1234</b></span>
+              <span class="text-emerald-600 font-semibold"><i class="fa-solid fa-check mr-1"></i> Chính sách 1 đổi 1 tiêu chuẩn</span>
+            </div>
+
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <!-- KHÔNG TÌM THẤY KẾT QUẢ -->
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-10 text-center shadow-sm">
+        <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 class="font-bold text-base text-slate-800">Không tìm thấy thông tin bảo hành</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-6">
+          Không có bản ghi bảo hành nào khớp với từ khóa <b>"<%= queryValue %>"</b>. Lưu ý bảo hành điện tử chỉ được kích hoạt sau khi đơn hàng được giao thành công (trạng thái "Đã hoàn thành").
+        </p>
+        <a href="/warranty" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+          <i class="fa-solid fa-rotate-left"></i> Thử tìm lại
+        </a>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+
+<script>
+  function setWarrantyQuery(val) {
+    const input = document.querySelector('input[name="query"]');
+    if (input) {
+      input.value = val;
+      input.focus();
+    }
+  }
+</script>

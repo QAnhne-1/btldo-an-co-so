@@ -1,0 +1,272 @@
+<!-- BREADCRUMBS -->
+<nav class="flex items-center gap-2 text-xs text-slate-500 mb-6 flex-wrap">
+  <a href="/" class="hover:text-indigo-600 transition"><i class="fa-solid fa-house"></i> Trang chủ</a>
+  <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+  <a href="/products?category=<%= product.category_slug %>" class="hover:text-indigo-600 transition"><%= product.category_name %></a>
+  <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+  <span class="text-slate-800 font-semibold truncate max-w-xs"><%= product.name %></span>
+</nav>
+
+<div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 lg:p-10 mb-12">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-start">
+    
+    <!-- CỘT TRÁI: HÌNH ẢNH SẢN PHẨM & THUMBNAILS -->
+    <div class="space-y-4">
+      <div class="relative bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 h-80 sm:h-[450px] flex items-center justify-center">
+        <% 
+          const defaultVariant = variants.length > 0 ? variants[0] : null; 
+          const initialImage = defaultVariant && defaultVariant.image ? defaultVariant.image : product.thumbnail;
+        %>
+        <img 
+          id="main-product-image"
+          src="<%= initialImage %>" 
+          alt="<%= product.name %>" 
+          class="w-full h-full object-cover transition duration-300"
+        >
+        <div class="absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
+          <%= product.brand_name %>
+        </div>
+      </div>
+
+      <!-- Thư viện ảnh theo các phiên bản màu/kiểu dáng -->
+      <% if (variants.length > 1) { %>
+        <div>
+          <p class="text-xs font-semibold text-slate-400 mb-2">Hình ảnh theo các tùy chọn màu sắc / phiên bản:</p>
+          <div class="flex items-center gap-3 overflow-x-auto pb-2">
+            <% variants.forEach((v, idx) => { %>
+              <button 
+                type="button" 
+                onclick="document.getElementById('main-product-image').src='<%= v.image || product.thumbnail %>'"
+                class="w-16 h-16 rounded-xl border-2 border-slate-200 hover:border-indigo-500 overflow-hidden flex-shrink-0 transition"
+                title="<%= v.variant_name %>"
+              >
+                <img src="<%= v.image || product.thumbnail %>" alt="<%= v.variant_name %>" class="w-full h-full object-cover">
+              </button>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- CỘT PHẢI: THÔNG TIN CHI TIẾT & CHỌN BIẾN THỂ ĐỘNG -->
+    <div class="space-y-6">
+      
+      <div>
+        <div class="flex items-center gap-3 mb-2 flex-wrap">
+          <span class="px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-700">
+            <%= product.category_name %>
+          </span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i class="fa-solid fa-shield-halved"></i>
+            Bảo hành <%= product.warranty_months %> tháng chính hãng
+          </span>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+          <%= product.name %>
+        </h1>
+
+        <div class="flex items-center gap-4 mt-3 text-xs text-slate-500">
+          <span>Mã sản phẩm: <b id="product-display-sku" class="text-slate-700"><%= defaultVariant ? defaultVariant.sku : 'N/A' %></b></span>
+          <span>•</span>
+          <span class="flex items-center text-amber-400 gap-1">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <span class="text-slate-600 font-bold ml-1">5.0 (Đánh giá chuẩn)</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Khung hiển thị giá và trạng thái tồn kho -->
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Giá niêm yết</span>
+          <div id="product-display-price" class="text-3xl font-black text-indigo-600 tracking-tight">
+            <%= defaultVariant ? formatVND(defaultVariant.price) : '0₫' %>
+          </div>
+        </div>
+
+        <!-- Trạng thái tồn kho -->
+        <div>
+          <% if (defaultVariant && defaultVariant.stock_quantity > 5) { %>
+            <span id="product-stock-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+              <i class="fa-solid fa-circle-check mr-1.5"></i>Còn hàng (<%= defaultVariant.stock_quantity %> sản phẩm)
+            </span>
+          <% } else if (defaultVariant && defaultVariant.stock_quantity > 0) { %>
+            <span id="product-stock-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+              <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Sắp hết hàng (Chỉ còn <%= defaultVariant.stock_quantity %> cái)
+            </span>
+          <% } else { %>
+            <span id="product-stock-badge" class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+              <i class="fa-solid fa-circle-xmark mr-1.5"></i>Tạm hết hàng
+            </span>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- CHỌN BIẾN THỂ SẢN PHẨM (Variant Selector) -->
+      <% if (variants.length > 0) { %>
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2.5">
+            Lựa chọn phiên bản / Màu sắc *
+          </label>
+          <div class="flex flex-wrap gap-2.5">
+            <% variants.forEach((v, index) => { %>
+              <button 
+                type="button"
+                data-id="<%= v.id %>"
+                data-sku="<%= v.sku %>"
+                data-price="<%= v.price %>"
+                data-stock="<%= v.stock_quantity %>"
+                data-image="<%= v.image || product.thumbnail %>"
+                class="variant-select-btn px-4 py-2.5 rounded-xl border text-xs font-medium transition cursor-pointer flex items-center gap-2 <%= index === 0 ? 'active border-indigo-600 bg-indigo-50 text-indigo-700 font-bold' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-400' %>"
+              >
+                <span><%= v.variant_name %></span>
+                <% if (v.stock_quantity <= 0) { %>
+                  <span class="text-[10px] text-rose-500 font-bold">(Hết hàng)</span>
+                <% } %>
+              </button>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- FORM THÊM VÀO GIỎ HÀNG -->
+      <form action="/cart/add" method="POST" class="space-y-5 pt-2">
+        <input type="hidden" name="variant_id" id="selected-variant-id" value="<%= defaultVariant ? defaultVariant.id : '' %>">
+
+        <!-- Chọn số lượng -->
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Số lượng mua:</label>
+          <div class="flex items-center gap-3">
+            <div class="qty-wrapper flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white">
+              <button type="button" class="qty-btn-minus w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
+                <i class="fa-solid fa-minus text-xs"></i>
+              </button>
+              <input 
+                type="number" 
+                name="quantity" 
+                id="product-quantity-input" 
+                class="qty-input w-14 h-10 text-center text-sm font-bold text-slate-800 border-x border-slate-200 outline-none" 
+                value="1" 
+                min="1" 
+                max="<%= defaultVariant ? defaultVariant.stock_quantity : 99 %>"
+              >
+              <button type="button" class="qty-btn-plus w-10 h-10 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition">
+                <i class="fa-solid fa-plus text-xs"></i>
+              </button>
+            </div>
+            <span class="text-xs text-slate-400">Cam kết đóng gói chống sốc & gửi hỏa tốc</span>
+          </div>
+        </div>
+
+        <!-- Nút Thao Tác Mua Hàng -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
+          <button 
+            type="submit" 
+            id="add-to-cart-btn"
+            <%= (!defaultVariant || defaultVariant.stock_quantity <= 0) ? 'disabled' : '' %>
+            class="w-full sm:flex-1 py-3.5 px-6 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-sm border border-indigo-200 transition duration-200 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i class="fa-solid fa-cart-plus text-base"></i>
+            <span>Thêm vào giỏ hàng</span>
+          </button>
+
+          <button 
+            type="submit" 
+            id="buy-now-btn"
+            <%= (!defaultVariant || defaultVariant.stock_quantity <= 0) ? 'disabled' : '' %>
+            class="w-full sm:flex-1 py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-200 transition duration-200 flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <i class="fa-solid fa-bolt-lightning text-amber-300"></i>
+            <span>Mua ngay</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Cam kết bán hàng -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/60 grid grid-cols-2 gap-3 text-[11px] text-slate-600">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check text-emerald-600"></i>
+          <span>100% Chính hãng Anker, Sony, Apple</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-rotate-left text-indigo-600"></i>
+          <span>Đổi mới 30 ngày nếu lỗi NSX</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-truck text-amber-600"></i>
+          <span>Giao hàng toàn quốc kiểm tra ưng ý</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-qrcode text-sky-600"></i>
+          <span>Bảo hành điện tử qua Serial / SĐT</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- THÔNG SỐ KỸ THUẬT & MÔ TẢ CHI TIẾT SẢN PHẨM -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 items-start">
+  
+  <!-- Mô tả chi tiết (2 cột) -->
+  <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+    <h2 class="text-xl font-black text-slate-900 tracking-tight mb-4 flex items-center gap-2.5">
+      <i class="fa-solid fa-circle-info text-indigo-600"></i>
+      <span>Mô Tả Chi Tiết Sản Phẩm</span>
+    </h2>
+    <div class="prose max-w-none text-slate-700 text-sm leading-relaxed space-y-4">
+      <p><%= product.description %></p>
+    </div>
+  </div>
+
+  <!-- Bảng thông số kỹ thuật (1 cột) -->
+  <div class="lg:col-span-1 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-sm">
+    <h2 class="text-lg font-black text-slate-900 tracking-tight mb-4 flex items-center gap-2">
+      <i class="fa-solid fa-microchip text-indigo-600"></i>
+      <span>Thông Số Kỹ Thuật</span>
+    </h2>
+
+    <% if (Object.keys(specifications).length > 0) { %>
+      <div class="divide-y divide-slate-100 text-xs">
+        <% for (let [key, val] of Object.entries(specifications)) { %>
+          <div class="py-2.5 flex justify-between gap-4">
+            <span class="text-slate-500 font-medium"><%= key.replace(/_/g, ' ') %></span>
+            <span class="text-slate-800 font-bold text-right"><%= val %></span>
+          </div>
+        <% } %>
+      </div>
+    <% } else { %>
+      <p class="text-xs text-slate-400">Chưa có thông số chi tiết.</p>
+    <% } %>
+  </div>
+
+</div>
+
+<!-- SẢN PHẨM CÙNG DANH MỤC -->
+<% if (relatedProducts.length > 0) { %>
+  <div class="mb-12">
+    <h2 class="text-xl font-black text-slate-900 tracking-tight mb-6">Sản Phẩm Tương Tự Có Thể Bạn Thích</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <% relatedProducts.forEach(rel => { %>
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 hover:shadow-lg transition">
+          <div class="h-44 rounded-xl overflow-hidden bg-slate-100 mb-3">
+            <img src="<%= rel.thumbnail %>" alt="<%= rel.name %>" class="w-full h-full object-cover">
+          </div>
+          <a href="/product/<%= rel.slug %>" class="font-bold text-xs text-slate-800 hover:text-indigo-600 line-clamp-2 mb-2">
+            <%= rel.name %>
+          </a>
+          <p class="text-sm font-black text-indigo-600">
+            <%= formatVND(rel.min_price || 0) %>
+          </p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+<% } %>

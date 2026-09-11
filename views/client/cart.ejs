@@ -1,0 +1,161 @@
+<div class="mb-8">
+  <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Giỏ Hàng Của Bạn</h1>
+  <p class="text-xs text-slate-500 mt-1">Kiểm tra lại số lượng và giá sản phẩm trước khi tiến hành thanh toán</p>
+</div>
+
+<% if (cartItems.length > 0) { %>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-16">
+    
+    <!-- CỘT TRÁI: DANH SÁCH MẶT HÀNG TRONG GIỎ (2 CỘT) -->
+    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <span class="text-sm font-bold text-slate-800">
+          Hiện có <b class="text-indigo-600"><%= cartItems.length %></b> loại mặt hàng
+        </span>
+        <a href="/products" class="text-xs text-indigo-600 hover:underline font-semibold flex items-center gap-1">
+          <i class="fa-solid fa-plus text-[10px]"></i> Thêm sản phẩm khác
+        </a>
+      </div>
+
+      <div class="divide-y divide-slate-100">
+        <% cartItems.forEach(item => { %>
+          <div class="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            
+            <!-- Thông tin & Ảnh -->
+            <div class="flex items-center gap-4 min-w-0">
+              <div class="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0">
+                <img src="<%= item.image %>" alt="<%= item.product_name %>" class="w-full h-full object-cover">
+              </div>
+              <div class="min-w-0">
+                <a href="/product/<%= item.product_slug %>" class="font-bold text-sm text-slate-900 hover:text-indigo-600 line-clamp-1 transition">
+                  <%= item.product_name %>
+                </a>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  Phiên bản: <span class="font-semibold text-slate-700"><%= item.variant_name %></span>
+                </p>
+                <p class="text-[11px] text-slate-400 font-mono mt-0.5">
+                  SKU: <%= item.sku %>
+                </p>
+                <p class="text-xs font-bold text-indigo-600 mt-1 sm:hidden">
+                  <%= formatVND(item.price) %>
+                </p>
+              </div>
+            </div>
+
+            <!-- Bộ chỉnh số lượng & Đơn giá -->
+            <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+              
+              <!-- Đơn giá desktop -->
+              <div class="text-right hidden sm:block">
+                <p class="text-[10px] text-slate-400 font-semibold uppercase">Đơn giá</p>
+                <p class="text-xs font-bold text-slate-800">
+                  <%= formatVND(item.price) %>
+                </p>
+              </div>
+
+              <!-- Tăng giảm số lượng -->
+              <form action="/cart/update" method="POST" class="cart-update-form">
+                <input type="hidden" name="variant_id" value="<%= item.variant_id %>">
+                <div class="qty-wrapper flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                  <button type="button" class="qty-btn-minus w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-minus text-[10px]"></i>
+                  </button>
+                  <input 
+                    type="number" 
+                    name="quantity" 
+                    class="qty-input w-10 h-8 text-center text-xs font-bold text-slate-800 bg-transparent outline-none" 
+                    value="<%= item.quantity %>" 
+                    min="1" 
+                    max="<%= item.stock_quantity %>"
+                    onchange="this.form.submit()"
+                  >
+                  <button type="button" class="qty-btn-plus w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 transition">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                  </button>
+                </div>
+              </form>
+
+              <!-- Thành tiền của dòng -->
+              <div class="text-right">
+                <p class="text-[10px] text-slate-400 font-semibold uppercase">Thành tiền</p>
+                <p class="text-sm font-black text-indigo-600">
+                  <%= formatVND(item.itemTotal) %>
+                </p>
+              </div>
+
+              <!-- Nút xóa mặt hàng -->
+              <form action="/cart/remove" method="POST">
+                <input type="hidden" name="variant_id" value="<%= item.variant_id %>">
+                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition" title="Xóa khỏi giỏ hàng">
+                  <i class="fa-regular fa-trash-can text-sm"></i>
+                </button>
+              </form>
+
+            </div>
+
+          </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- CỘT PHẢI: TỔNG KẾT ĐƠN HÀNG (1 CỘT) -->
+    <div class="lg:col-span-1 bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 sticky top-24 space-y-6">
+      <h2 class="text-base font-black text-slate-900 tracking-tight border-b border-slate-100 pb-4">
+        Tóm Tắt Đơn Hàng
+      </h2>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex justify-between text-slate-600">
+          <span>Tiền hàng tạm tính</span>
+          <span class="font-bold text-slate-800"><%= formatVND(subtotal) %></span>
+        </div>
+
+        <div class="flex justify-between text-slate-600">
+          <span>Phí vận chuyển</span>
+          <% if (shippingFee === 0) { %>
+            <span class="font-bold text-emerald-600">Miễn phí (Đơn > 500k)</span>
+          <% } else { %>
+            <span class="font-bold text-slate-800"><%= formatVND(shippingFee) %></span>
+          <% } %>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex justify-between items-baseline">
+          <span class="text-sm font-black text-slate-900">Tổng thanh toán</span>
+          <span class="text-2xl font-black text-indigo-600 tracking-tight">
+            <%= formatVND(finalTotal) %>
+          </span>
+        </div>
+      </div>
+
+      <div class="p-3 bg-amber-50 border border-amber-200/60 rounded-xl text-[11px] text-amber-800 flex items-start gap-2">
+        <i class="fa-solid fa-truck-ramp-box text-amber-600 mt-0.5"></i>
+        <span>Đơn hàng được bảo vệ nguyên vẹn bằng hộp carton và màng bọc bóng khí cao cấp.</span>
+      </div>
+
+      <a href="/checkout" class="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-200 hover:shadow-indigo-300 transition duration-200 flex items-center justify-center gap-2">
+        <span>Tiến hành đặt hàng</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+
+      <a href="/products" class="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition duration-200 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-chevron-left text-[10px]"></i>
+        <span>Tiếp tục mua sắm</span>
+      </a>
+    </div>
+
+  </div>
+<% } else { %>
+  <!-- GIỎ HÀNG TRỐNG -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 p-12 text-center max-w-lg mx-auto shadow-sm my-12">
+    <div class="w-20 h-20 rounded-3xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-3xl mx-auto mb-5 shadow-inner">
+      <i class="fa-solid fa-bag-shopping"></i>
+    </div>
+    <h2 class="text-xl font-black text-slate-900 tracking-tight">Giỏ Hàng Của Bạn Đang Trống</h2>
+    <p class="text-xs text-slate-500 mt-2 mb-8 leading-relaxed">
+      Hãy tham khảo các phụ kiện tai nghe chống ồn, củ cáp sạc nhanh GaN và pin dự phòng chính hãng tại TechStore.
+    </p>
+    <a href="/products" class="inline-flex items-center justify-center px-7 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg shadow-indigo-200 transition">
+      <i class="fa-solid fa-cart-shopping mr-2"></i> Mua sắm ngay bây giờ
+    </a>
+  </div>
+<% } %>

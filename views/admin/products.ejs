@@ -1,0 +1,151 @@
+<!-- HEADER & TOOLBAR -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-xl font-black text-slate-900 tracking-tight">Quản Lý Sản Phẩm & Biến Thể</h1>
+    <p class="text-xs text-slate-500 mt-0.5">Danh sách toàn bộ phụ kiện điện tử, giá bán và lượng tồn kho</p>
+  </div>
+
+  <a href="/admin/products/new" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition inline-flex items-center gap-2 self-start sm:self-auto">
+    <i class="fa-solid fa-plus text-xs"></i>
+    <span>Thêm Sản Phẩm Mới</span>
+  </a>
+</div>
+
+<!-- BỘ LỌC TÌM KIẾM -->
+<div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+  <form action="/admin/products" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="relative sm:col-span-2">
+      <input 
+        type="text" 
+        name="q" 
+        value="<%= query.q || '' %>"
+        placeholder="Tìm kiếm theo tên sản phẩm hoặc mã SKU..." 
+        class="w-full pl-10 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none transition"
+      >
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <select 
+        name="category" 
+        onchange="this.form.submit()"
+        class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600"
+      >
+        <option value="">Tất cả danh mục</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>" <%= query.category == cat.id ? 'selected' : '' %>>
+            <%= cat.name %>
+          </option>
+        <% }) %>
+      </select>
+
+      <button type="submit" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+        Lọc
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- BẢNG DỮ LIỆU SẢN PHẨM -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+        <tr>
+          <th class="py-3.5 px-4">Sản phẩm</th>
+          <th class="py-3.5 px-4">Danh mục</th>
+          <th class="py-3.5 px-4">Thương hiệu</th>
+          <th class="py-3.5 px-4 text-center">Số phiên bản</th>
+          <th class="py-3.5 px-4">Khoảng giá</th>
+          <th class="py-3.5 px-4 text-center">Tổng tồn kho</th>
+          <th class="py-3.5 px-4 text-center">Bảo hành</th>
+          <th class="py-3.5 px-4 text-right">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-slate-700">
+        <% if (products.length > 0) { %>
+          <% products.forEach(prod => { %>
+            <tr class="hover:bg-slate-50/80 transition">
+              <!-- Thumbnail & Tên -->
+              <td class="py-3.5 px-4 flex items-center gap-3">
+                <img src="<%= prod.thumbnail %>" alt="<%= prod.name %>" class="w-11 h-11 rounded-xl object-cover bg-slate-100 border border-slate-200 flex-shrink-0">
+                <div class="min-w-0">
+                  <a href="/admin/products/<%= prod.id %>/edit" class="font-bold text-slate-900 hover:text-indigo-600 line-clamp-1">
+                    <%= prod.name %>
+                  </a>
+                  <p class="text-[11px] text-slate-400">Tạo ngày: <%= formatDate(prod.created_at) %></p>
+                </div>
+              </td>
+
+              <!-- Danh mục -->
+              <td class="py-3.5 px-4 font-semibold text-slate-800">
+                <%= prod.category_name %>
+              </td>
+
+              <!-- Thương hiệu -->
+              <td class="py-3.5 px-4">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
+                  <%= prod.brand_name %>
+                </span>
+              </td>
+
+              <!-- Số biến thể -->
+              <td class="py-3.5 px-4 text-center font-bold text-indigo-600">
+                <%= prod.variant_count %> mẫu
+              </td>
+
+              <!-- Khoảng giá -->
+              <td class="py-3.5 px-4 font-bold text-slate-800">
+                <% if (prod.min_price === prod.max_price) { %>
+                  <%= formatVND(prod.min_price || 0) %>
+                <% } else { %>
+                  <%= formatVND(prod.min_price || 0) %> - <%= formatVND(prod.max_price || 0) %>
+                <% } %>
+              </td>
+
+              <!-- Tổng tồn kho -->
+              <td class="py-3.5 px-4 text-center">
+                <% if (prod.total_stock <= 5) { %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold text-[10px] bg-amber-100 text-amber-800">
+                    <i class="fa-solid fa-triangle-exclamation mr-1 text-[8px]"></i> <%= prod.total_stock %> cái
+                  </span>
+                <% } else { %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full font-bold text-[10px] bg-emerald-100 text-emerald-800">
+                    <%= prod.total_stock %> cái
+                  </span>
+                <% } %>
+              </td>
+
+              <!-- Bảo hành -->
+              <td class="py-3.5 px-4 text-center font-semibold text-slate-600">
+                <%= prod.warranty_months %> tháng
+              </td>
+
+              <!-- Thao tác -->
+              <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-1.5">
+                  <a href="/admin/products/<%= prod.id %>/edit" class="p-1.5 rounded-lg bg-slate-100 hover:bg-indigo-600 hover:text-white text-slate-600 transition" title="Chỉnh sửa sản phẩm & biến thể">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                  </a>
+
+                  <form action="/admin/products/<%= prod.id %>/delete" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này cùng toàn bộ các biến thể?');" class="inline">
+                    <button type="submit" class="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-600 hover:text-white text-slate-600 transition" title="Xóa">
+                      <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="8" class="py-10 text-center text-slate-400">
+              Không tìm thấy sản phẩm nào phù hợp với bộ lọc.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

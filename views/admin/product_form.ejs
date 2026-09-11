@@ -1,0 +1,223 @@
+<div class="max-w-4xl mx-auto pb-12">
+  
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <a href="/admin/products" class="text-xs text-indigo-600 hover:underline font-bold flex items-center gap-1 mb-1">
+        <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại danh sách sản phẩm
+      </a>
+      <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+        <%= isEdit ? 'Chỉnh Sửa Sản Phẩm & Biến Thể' : 'Thêm Sản Phẩm Mới Vào Hệ Thống' %>
+      </h1>
+    </div>
+  </div>
+
+  <form action="<%= isEdit ? '/admin/products/' + product.id + '/edit' : '/admin/products/new' %>" method="POST" class="space-y-8">
+    
+    <!-- 1. THÔNG TIN CƠ BẢN SẢN PHẨM -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <i class="fa-solid fa-box text-indigo-600"></i>
+        <span>Thông Tin Cơ Bản Sản Phẩm</span>
+      </h2>
+
+      <div>
+        <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Tên sản phẩm *</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          required 
+          value="<%= product ? product.name : '' %>"
+          placeholder="VD: Tai nghe không dây Sony WH-1000XM5" 
+          class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none"
+        >
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="category_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Danh mục *</label>
+          <select id="category_id" name="category_id" required class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600">
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat.id %>" <%= product && product.category_id === cat.id ? 'selected' : '' %>>
+                <%= cat.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label for="brand_id" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Thương hiệu *</label>
+          <select id="brand_id" name="brand_id" required class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600">
+            <% brands.forEach(b => { %>
+              <option value="<%= b.id %>" <%= product && product.brand_id === b.id ? 'selected' : '' %>>
+                <%= b.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
+          <label for="warranty_months" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Bảo hành (Tháng) *</label>
+          <input 
+            type="number" 
+            id="warranty_months" 
+            name="warranty_months" 
+            required 
+            min="1" 
+            max="60" 
+            value="<%= product ? product.warranty_months : 12 %>"
+            class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-600"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label for="thumbnail" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">URL Ảnh đại diện (Thumbnail) *</label>
+        <input 
+          type="url" 
+          id="thumbnail" 
+          name="thumbnail" 
+          required 
+          value="<%= product ? product.thumbnail : '' %>"
+          placeholder="https://images.unsplash.com/..." 
+          class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none"
+        >
+      </div>
+
+      <div>
+        <label for="description" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">Mô tả sản phẩm chi tiết</label>
+        <textarea 
+          id="description" 
+          name="description" 
+          rows="4" 
+          placeholder="Mô tả công nghệ âm thanh, khả năng chống ồn, công suất sạc..."
+          class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-indigo-600 outline-none resize-y"
+        ><%= product ? product.description : '' %></textarea>
+      </div>
+    </div>
+
+    <!-- 2. THÔNG SỐ KỸ THUẬT (JSON SPECIFICATIONS) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-microchip text-indigo-600"></i>
+          <span>Thông Số Kỹ Thuật (JSON Specifications)</span>
+        </h2>
+        <button type="button" id="add-spec-row-btn" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus text-[10px]"></i> Thêm thông số
+        </button>
+      </div>
+
+      <div id="spec-rows-container">
+        <% if (product && product.specifications && Object.keys(product.specifications).length > 0) { %>
+          <% for (let [key, val] of Object.entries(product.specifications)) { %>
+            <div class="flex items-center gap-3 mb-3">
+              <input type="text" name="spec_keys[]" value="<%= key %>" placeholder="Tên thông số" class="w-1/3 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              <input type="text" name="spec_values[]" value="<%= val %>" placeholder="Giá trị" class="w-2/3 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              <button type="button" onclick="this.parentElement.remove()" class="p-2 text-rose-500 hover:text-rose-700">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          <% } %>
+        <% } else { %>
+          <div class="flex items-center gap-3 mb-3">
+            <input type="text" name="spec_keys[]" placeholder="Tên thông số (VD: Cong_suat)" class="w-1/3 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            <input type="text" name="spec_values[]" placeholder="Giá trị (VD: 65W GaN)" class="w-2/3 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            <button type="button" onclick="this.parentElement.remove()" class="p-2 text-rose-500 hover:text-rose-700">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- 3. DANH SÁCH BIẾN THỂ (VARIANTS: MÀU SẮC, GIÁ, TỒN KHO) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-layer-group text-indigo-600"></i>
+            <span>Các Phiên Bản / Biến Thể Sản Phẩm (Variants) *</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Mỗi sản phẩm bắt buộc có ít nhất một phiên bản xác định SKU, giá bán và số lượng tồn kho</p>
+        </div>
+
+        <button type="button" id="add-variant-row-btn" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-200 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus text-[10px]"></i> Thêm phiên bản mới
+        </button>
+      </div>
+
+      <div id="variant-rows-container">
+        <% if (variants && variants.length > 0) { %>
+          <% variants.forEach((v, idx) => { %>
+            <div id="variant-row-<%= v.id %>" class="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 relative">
+              <input type="hidden" name="variant_id[]" value="<%= v.id %>">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Tên phiên bản / Màu sắc *</label>
+                  <input type="text" name="variant_name[]" required value="<%= v.variant_name %>" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Mã SKU *</label>
+                  <input type="text" name="variant_sku[]" required value="<%= v.sku %>" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Giá bán (VNĐ) *</label>
+                  <input type="number" name="variant_price[]" required min="0" step="1000" value="<%= v.price %>" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng trong kho *</label>
+                  <input type="number" name="variant_stock[]" required min="0" value="<%= v.stock_quantity %>" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+              </div>
+              <div class="mt-3">
+                <label class="block text-xs font-semibold text-slate-700 mb-1">URL Ảnh riêng của phiên bản</label>
+                <input type="url" name="variant_image[]" value="<%= v.image || '' %>" placeholder="https://..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <!-- Hàng mặc định khi tạo mới sản phẩm -->
+          <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 relative">
+            <input type="hidden" name="variant_id[]" value="new">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Tên phiên bản / Màu sắc *</label>
+                <input type="text" name="variant_name[]" required placeholder="VD: Màu Đen Tiêu Chuẩn" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Mã SKU *</label>
+                <input type="text" name="variant_sku[]" required placeholder="VD: ANK-735-BLK" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Giá bán (VNĐ) *</label>
+                <input type="number" name="variant_price[]" required min="0" step="1000" placeholder="1190000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Số lượng trong kho *</label>
+                <input type="number" name="variant_stock[]" required min="0" value="20" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="block text-xs font-semibold text-slate-700 mb-1">URL Ảnh riêng của phiên bản (Tùy chọn)</label>
+              <input type="url" name="variant_image[]" placeholder="https://..." class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- NÚT LƯU THÔNG TIN -->
+    <div class="flex items-center justify-end gap-4 pt-4 border-t border-slate-200">
+      <a href="/admin/products" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+        Hủy bỏ
+      </a>
+      <button type="submit" class="px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-200 transition flex items-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span><%= isEdit ? 'Cập Nhật Sản Phẩm' : 'Tạo Sản Phẩm & Biến Thể' %></span>
+      </button>
+    </div>
+
+  </form>
+
+</div>

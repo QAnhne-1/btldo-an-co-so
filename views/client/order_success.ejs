@@ -1,0 +1,127 @@
+<div class="max-w-3xl mx-auto py-10">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-8 sm:p-12 text-center">
+    
+    <!-- Animated Success Icon -->
+    <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-6 shadow-inner">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+
+    <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+      Đặt Hàng Thành Công!
+    </h1>
+    <p class="text-sm text-slate-600 max-w-md mx-auto mb-8">
+      Cảm ơn quý khách đã tin tưởng mua sắm tại TechStore. Đơn hàng của bạn đã được ghi nhận vào hệ thống và đang được chuẩn bị.
+    </p>
+
+    <!-- Khung Mã đơn hàng -->
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 mb-8 max-w-lg mx-auto flex items-center justify-between gap-4">
+      <div class="text-left">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Mã theo dõi đơn hàng</span>
+        <p id="order-tracking-code" class="text-xl sm:text-2xl font-black font-mono text-indigo-600 tracking-wider">
+          <%= order.order_code %>
+        </p>
+      </div>
+
+      <button 
+        type="button" 
+        onclick="copyOrderCode('<%= order.order_code %>')"
+        class="px-3.5 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-sm"
+      >
+        <i class="fa-regular fa-copy"></i>
+        <span id="copy-btn-text">Sao chép</span>
+      </button>
+    </div>
+
+    <!-- Thông tin chi tiết đơn hàng -->
+    <div class="border border-slate-100 rounded-2xl p-6 text-left mb-8 space-y-4">
+      <h3 class="font-bold text-sm text-slate-800 pb-3 border-b border-slate-100 flex items-center gap-2">
+        <i class="fa-solid fa-clipboard-list text-indigo-600"></i>
+        <span>Chi Tiết Người Nhận & Vận Chuyển</span>
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div>
+          <span class="text-slate-400">Người nhận:</span>
+          <p class="font-bold text-slate-800 text-sm mt-0.5"><%= order.customer_name %></p>
+        </div>
+        <div>
+          <span class="text-slate-400">Số điện thoại:</span>
+          <p class="font-bold text-slate-800 text-sm mt-0.5"><%= order.customer_phone %></p>
+        </div>
+        <div class="sm:col-span-2">
+          <span class="text-slate-400">Địa chỉ giao nhận:</span>
+          <p class="font-semibold text-slate-700 mt-0.5"><%= order.shipping_address %></p>
+        </div>
+        <div>
+          <span class="text-slate-400">Phương thức thanh toán:</span>
+          <p class="font-bold text-slate-800 uppercase mt-0.5">
+            <%= order.payment_method === 'banking' ? 'Chuyển khoản VietQR' : 'Thanh toán tiền mặt COD' %>
+          </p>
+        </div>
+        <div>
+          <span class="text-slate-400">Tổng số tiền:</span>
+          <p class="font-black text-indigo-600 text-base mt-0.5">
+            <%= formatVND(order.total_amount) %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Danh sách mặt hàng đã mua -->
+      <div class="pt-4 border-t border-slate-100">
+        <span class="text-xs font-bold text-slate-700 block mb-3">Sản phẩm trong kiện hàng:</span>
+        <div class="space-y-3">
+          <% items.forEach(it => { %>
+            <div class="flex items-center justify-between gap-3 text-xs bg-slate-50 p-2.5 rounded-xl">
+              <div class="flex items-center gap-3">
+                <img src="<%= it.image %>" alt="<%= it.product_name %>" class="w-10 h-10 rounded-lg object-cover">
+                <div>
+                  <p class="font-bold text-slate-800"><%= it.product_name %></p>
+                  <p class="text-[11px] text-slate-400"><%= it.variant_name %> (x<%= it.quantity %>)</p>
+                </div>
+              </div>
+              <span class="font-bold text-slate-800">
+                <%= formatVND(it.price * it.quantity) %>
+              </span>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hướng dẫn bảo hành điện tử -->
+    <div class="p-4 rounded-2xl bg-indigo-50 border border-indigo-100 text-xs text-indigo-900 text-left mb-8 flex items-start gap-3">
+      <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <p class="font-bold mb-1">Chính sách bảo hành điện tử chính hãng:</p>
+        <p class="text-slate-600 leading-relaxed">
+          Sau khi đơn hàng giao thành công (trạng thái "Đã hoàn thành"), hệ thống sẽ tự động kích hoạt bảo hành điện tử và phát hành mã Serial Number (SN-XXXXXX). Bạn có thể dùng Số điện thoại hoặc Serial để tra cứu bất cứ lúc nào tại mục <b>Tra cứu bảo hành</b>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Nút điều hướng -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="/" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-xl shadow-indigo-200 transition">
+        <i class="fa-solid fa-house mr-2"></i> Trở về trang chủ
+      </a>
+      <a href="/warranty" class="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition">
+        <i class="fa-solid fa-magnifying-glass mr-2"></i> Đến trang tra cứu bảo hành
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function copyOrderCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+      const btnText = document.getElementById('copy-btn-text');
+      btnText.textContent = 'Đã sao chép!';
+      setTimeout(() => {
+        btnText.textContent = 'Sao chép';
+      }, 2000);
+    });
+  }
+</script>

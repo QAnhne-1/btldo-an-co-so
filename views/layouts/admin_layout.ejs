@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'TechStore Management - Admin Dashboard' %></title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            admin: {
+              sidebar: '#0f172a', // Slate 900
+              hover: '#1e293b',   // Slate 800
+              active: '#334155',  // Slate 700
+              primary: '#4f46e5', // Indigo 600
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
+  <%- typeof style !== 'undefined' ? style : '' %>
+</head>
+<body class="h-full flex overflow-hidden text-slate-800">
+
+  <!-- 1. DARK SLATE FIXED SIDEBAR (LEFT) -->
+  <aside class="w-64 bg-slate-950 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 z-30">
+    <!-- Brand / Logo Area -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800/80 gap-3">
+      <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20">
+        <i class="fa-solid fa-bolt-lightning text-amber-300 text-sm"></i>
+      </div>
+      <div>
+        <span class="text-base font-black text-white tracking-wider">TECH<span class="text-indigo-400">ADMIN</span></span>
+        <span class="block text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Hệ Thống Quản Trị</span>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Items -->
+    <div class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <div class="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Bảng điều khiển</div>
+      
+      <a href="/admin/dashboard" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition <%= currentPath === '/admin/dashboard' ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' %>">
+        <i class="fa-solid fa-chart-pie w-5 text-center text-slate-400 <%= currentPath === '/admin/dashboard' ? 'text-white' : '' %>"></i>
+        <span>Tổng quan</span>
+      </a>
+
+      <div class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Quản lý bán hàng</div>
+
+      <a href="/admin/products" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition <%= currentPath.startsWith('/admin/products') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' %>">
+        <i class="fa-solid fa-box-open w-5 text-center text-slate-400 <%= currentPath.startsWith('/admin/products') ? 'text-white' : '' %>"></i>
+        <span>Sản phẩm & Tồn kho</span>
+      </a>
+
+      <a href="/admin/orders" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition <%= currentPath.startsWith('/admin/orders') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' %>">
+        <i class="fa-solid fa-shopping-bag w-5 text-center text-slate-400 <%= currentPath.startsWith('/admin/orders') ? 'text-white' : '' %>"></i>
+        <span>Xử lý đơn hàng</span>
+      </a>
+
+      <div class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Hậu mãi & Bảo hành</div>
+
+      <a href="/admin/warranties" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition <%= currentPath.startsWith('/admin/warranties') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:bg-slate-900 hover:text-white' %>">
+        <i class="fa-solid fa-shield-halved w-5 text-center text-slate-400 <%= currentPath.startsWith('/admin/warranties') ? 'text-white' : '' %>"></i>
+        <span>Bảo hành điện tử</span>
+      </a>
+
+      <div class="px-3 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500">Liên kết ngoài</div>
+
+      <a href="/" target="_blank" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-900 hover:text-amber-400 transition">
+        <i class="fa-solid fa-arrow-up-right-from-square w-5 text-center"></i>
+        <span>Xem Cửa Hàng (Client)</span>
+      </a>
+    </div>
+
+    <!-- Admin User Card (Bottom of Sidebar) -->
+    <div class="p-3 border-t border-slate-800/80 bg-slate-900/60">
+      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-sm text-white uppercase flex-shrink-0">
+            <%= currentUser ? currentUser.fullname.charAt(0) : 'A' %>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-white truncate"><%= currentUser ? currentUser.fullname : 'Admin' %></p>
+            <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase <%= currentUser && currentUser.role === 'admin' ? 'bg-rose-900/50 text-rose-300' : 'bg-indigo-900/50 text-indigo-300' %>">
+              <%= currentUser ? currentUser.role : 'staff' %>
+            </span>
+          </div>
+        </div>
+        <a href="/auth/logout" class="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition" title="Đăng xuất">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 2. MAIN CONTENT WRAPPER -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    
+    <!-- TOP HEADER BAR -->
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-20 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hệ thống quản trị</span>
+        <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+        <h1 class="text-base font-bold text-slate-800"><%= typeof title !== 'undefined' ? title : 'Bảng điều khiển' %></h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Date indicator -->
+        <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+          <i class="fa-regular fa-calendar text-indigo-600"></i>
+          <span><%= new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }) %></span>
+        </div>
+
+        <!-- Role Badge -->
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold <%= currentUser && currentUser.role === 'admin' ? 'bg-rose-100 text-rose-700' : 'bg-indigo-100 text-indigo-700' %>">
+          <i class="fa-solid fa-shield text-[10px]"></i>
+          <%= currentUser ? currentUser.role.toUpperCase() : 'STAFF' %>
+        </span>
+      </div>
+    </header>
+
+    <!-- CONTENT CANVAS (SCROLLABLE) -->
+    <main class="flex-1 overflow-y-auto bg-slate-50/60 p-6 lg:p-8">
+      <div class="max-w-7xl mx-auto space-y-6">
+        <%- include('../partials/alerts') %>
+        <%- body %>
+      </div>
+    </main>
+  </div>
+
+  <!-- Admin Dynamic Script -->
+  <script src="/js/admin.js"></script>
+  <%- typeof script !== 'undefined' ? script : '' %>
+</body>
+</html>

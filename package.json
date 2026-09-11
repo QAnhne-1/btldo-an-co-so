@@ -1,0 +1,33 @@
+{
+  "name": "tech-store-ecommerce",
+  "version": "1.0.0",
+  "description": "Production-ready Full-Stack Electronic Accessories E-Commerce Web Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:init": "node scripts/init_db.js"
+  },
+  "keywords": [
+    "ecommerce",
+    "express",
+    "ejs",
+    "mysql",
+    "electronics",
+    "tailwind"
+  ],
+  "author": "Senior Full-Stack Engineer",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.0",
+    "mysql2": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

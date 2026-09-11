@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'TechStore - Phụ Kiện Điện Tử Cao Cấp' %></title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            accent: {
+              500: '#f59e0b',
+              600: '#d97706',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
+  <%- typeof style !== 'undefined' ? style : '' %>
+</head>
+<body class="flex flex-col min-h-screen text-slate-800">
+
+  <!-- 1. TOP ANNOUNCEMENT BAR -->
+  <header class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-4">
+        <span><i class="fa-solid fa-truck-fast text-amber-400 mr-1.5"></i> Miễn phí vận chuyển cho đơn hàng từ 500.000₫</span>
+        <span class="hidden md:inline text-slate-600">|</span>
+        <span class="hidden md:inline"><i class="fa-solid fa-shield-halved text-emerald-400 mr-1.5"></i> 100% Chính Hãng - Bảo hành đến 24 tháng</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-300">
+        <a href="tel:19001234" class="hover:text-white transition"><i class="fa-solid fa-phone text-amber-400 mr-1"></i> Hotline: 1900 1234</a>
+        <a href="/warranty" class="hover:text-amber-400 font-semibold transition"><i class="fa-solid fa-magnifying-glass mr-1"></i> Tra cứu bảo hành</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. STICKY MAIN NAVBAR -->
+  <nav class="sticky top-0 z-40 glass-nav border-b border-slate-200 shadow-sm transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-4">
+        
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2.5 flex-shrink-0 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-indigo-200 group-hover:scale-105 transition">
+            <i class="fa-solid fa-bolt-lightning text-lg text-amber-300"></i>
+          </div>
+          <div>
+            <span class="text-xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition">TECH<span class="text-indigo-600">STORE</span></span>
+            <span class="block text-[10px] tracking-wider uppercase font-semibold text-slate-400 -mt-1">Phụ Kiện Điện Tử</span>
+          </div>
+        </a>
+
+        <!-- Search Bar -->
+        <div class="hidden md:flex flex-1 max-w-lg mx-4">
+          <form action="/products" method="GET" class="w-full relative">
+            <input 
+              type="text" 
+              name="q" 
+              value="<%= typeof filters !== 'undefined' && filters.q ? filters.q : '' %>"
+              placeholder="Tìm tai nghe, củ sạc, cáp sạc, pin dự phòng..." 
+              class="w-full pl-11 pr-24 py-2.5 bg-slate-100/80 hover:bg-slate-100 focus:bg-white text-sm rounded-full border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none transition"
+            >
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-xs font-semibold transition">
+              Tìm kiếm
+            </button>
+          </form>
+        </div>
+
+        <!-- Navigation Actions -->
+        <div class="flex items-center gap-2 sm:gap-4">
+          <!-- Products Catalog Link -->
+          <a href="/products" class="px-3 py-2 text-sm font-semibold text-slate-700 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition hidden sm:inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-slate-500"></i> Sản phẩm
+          </a>
+
+          <!-- Warranty Lookup Link -->
+          <a href="/warranty" class="px-3 py-2 text-sm font-semibold text-slate-700 hover:text-indigo-600 rounded-lg hover:bg-slate-100 transition hidden lg:inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-emerald-600"></i> Bảo hành
+          </a>
+
+          <!-- Cart Icon with Badge -->
+          <a href="/cart" class="relative p-2.5 rounded-xl text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition flex items-center" title="Giỏ hàng">
+            <i class="fa-solid fa-bag-shopping text-xl"></i>
+            <span id="cart-badge-count" class="absolute -top-1 -right-1 bg-amber-500 text-white text-[11px] font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center shadow-sm">
+              <%= cartCount %>
+            </span>
+          </a>
+
+          <!-- User Authentication Section -->
+          <% if (currentUser) { %>
+            <div class="relative group">
+              <button type="button" class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-medium transition">
+                <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs uppercase">
+                  <%= currentUser.fullname.charAt(0) %>
+                </div>
+                <span class="hidden md:inline max-w-[120px] truncate"><%= currentUser.fullname %></span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-500"></i>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div class="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden group-hover:block transition z-50 animate-fade-in">
+                <div class="px-4 py-2 border-b border-slate-100">
+                  <p class="text-xs text-slate-400">Đăng nhập với</p>
+                  <p class="text-sm font-bold text-slate-800 truncate"><%= currentUser.fullname %></p>
+                  <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-semibold uppercase rounded <%= currentUser.role === 'admin' ? 'bg-rose-100 text-rose-700' : currentUser.role === 'staff' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700' %>">
+                    Vai trò: <%= currentUser.role %>
+                  </span>
+                </div>
+
+                <% if (currentUser.role === 'admin' || currentUser.role === 'staff') { %>
+                  <a href="/admin/dashboard" class="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition">
+                    <i class="fa-solid fa-gauge-high"></i> Vào Trang Quản Trị
+                  </a>
+                <% } %>
+
+                <a href="/warranty" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition">
+                  <i class="fa-solid fa-shield-halved text-emerald-600"></i> Tra cứu bảo hành
+                </a>
+
+                <div class="border-t border-slate-100 my-1"></div>
+                <a href="/auth/logout" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition font-medium">
+                  <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                </a>
+              </div>
+            </div>
+          <% } else { %>
+            <div class="flex items-center gap-2">
+              <a href="/auth/login" class="px-3 sm:px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-indigo-600 hover:bg-slate-100 transition">
+                Đăng nhập
+              </a>
+              <a href="/auth/register" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 transition">
+                Đăng ký
+              </a>
+            </div>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- Mobile Search Bar (Hiển thị trên màn hình nhỏ) -->
+      <div class="md:hidden pb-3 pt-1">
+        <form action="/products" method="GET" class="w-full relative">
+          <input 
+            type="text" 
+            name="q" 
+            placeholder="Tìm tai nghe, cáp, củ sạc..." 
+            class="w-full pl-10 pr-4 py-2 bg-slate-100 text-sm rounded-xl border border-slate-200 outline-none"
+          >
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 3. MAIN CONTENT CONTAINER -->
+  <main class="flex-grow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <%- include('../partials/alerts') %>
+      <%- body %>
+    </div>
+  </main>
+
+  <!-- 4. MODERN FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 text-sm mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- Cột 1: Thông tin thương hiệu -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
+              <i class="fa-solid fa-bolt-lightning text-amber-300"></i>
+            </div>
+            <span class="text-xl font-black text-white tracking-tight">TECH<span class="text-indigo-400">STORE</span></span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Hệ thống bán lẻ phụ kiện công nghệ, âm thanh, củ cáp sạc GaN và pin dự phòng chính hãng hàng đầu Việt Nam. Cam kết 100% nguồn gốc rõ ràng, bảo hành điện tử tiện lợi.
+          </p>
+          <div class="flex items-center gap-3 text-slate-400">
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-brands fa-youtube"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:text-white hover:bg-indigo-600 transition"><i class="fa-brands fa-tiktok"></i></a>
+          </div>
+        </div>
+
+        <!-- Cột 2: Danh mục sản phẩm -->
+        <div>
+          <h3 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Danh mục nổi bật</h3>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/products?category=tai-nghe-am-thanh" class="hover:text-amber-400 transition">Tai nghe & Âm thanh</a></li>
+            <li><a href="/products?category=cu-sac-bo-sac" class="hover:text-amber-400 transition">Củ sạc GaN công suất cao</a></li>
+            <li><a href="/products?category=cap-sac-day-ket-noi" class="hover:text-amber-400 transition">Cáp sạc Type-C & Lightning</a></li>
+            <li><a href="/products?category=pin-sac-du-phong" class="hover:text-amber-400 transition">Pin sạc dự phòng dung lượng lớn</a></li>
+            <li><a href="/products?category=loa-bluetooth-di-dong" class="hover:text-amber-400 transition">Loa di động Bluetooth kháng nước</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 3: Chính sách & Hỗ trợ -->
+        <div>
+          <h3 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Chăm sóc khách hàng</h3>
+          <ul class="space-y-2 text-xs">
+            <li><a href="/warranty" class="text-amber-400 font-semibold hover:underline"><i class="fa-solid fa-shield-check mr-1"></i> Tra cứu bảo hành điện tử</a></li>
+            <li><a href="#" class="hover:text-white transition">Chính sách đổi trả 1 - 1 trong 30 ngày</a></li>
+            <li><a href="#" class="hover:text-white transition">Chính sách vận chuyển & Giao hàng</a></li>
+            <li><a href="#" class="hover:text-white transition">Hướng dẫn thanh toán (COD / Chuyển khoản)</a></li>
+            <li><a href="#" class="hover:text-white transition">Câu hỏi thường gặp (FAQ)</a></li>
+          </ul>
+        </div>
+
+        <!-- Cột 4: Liên hệ & Địa chỉ -->
+        <div>
+          <h3 class="text-white font-bold text-sm tracking-wider uppercase mb-4">Liên hệ hỗ trợ</h3>
+          <ul class="space-y-3 text-xs">
+            <li class="flex items-start gap-2.5">
+              <i class="fa-solid fa-location-dot text-amber-400 mt-0.5"></i>
+              <span>Tòa nhà TechStore, 123 Đường Công Nghệ, Quận 1, TP. Hồ Chí Minh</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <i class="fa-solid fa-phone text-amber-400"></i>
+              <span>Hotline miễn phí: <b class="text-white">1900 1234</b> (8:00 - 21:30)</span>
+            </li>
+            <li class="flex items-center gap-2.5">
+              <i class="fa-solid fa-envelope text-amber-400"></i>
+              <span>Email: <b class="text-white">support@techstore.local</b></span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-slate-800 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+        <p>&copy; 2026 TechStore Việt Nam. Bản quyền thuộc về TechStore Electronic Accessories.</p>
+        <div class="flex items-center gap-3 text-slate-500">
+          <span><i class="fa-brands fa-cc-visa text-lg"></i></span>
+          <span><i class="fa-brands fa-cc-mastercard text-lg"></i></span>
+          <span><i class="fa-solid fa-qrcode text-lg"></i> VietQR</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Client Script -->
+  <script src="/js/client.js"></script>
+  <%- typeof script !== 'undefined' ? script : '' %>
+</body>
+</html>
