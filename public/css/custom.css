@@ -59,8 +59,15 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -71,6 +78,16 @@ body {
 .badge-glow-amber {
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
 }
+
 .badge-glow-indigo {
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+/* User Dropdown Menu Behavior & Seamless Hover Bridge */
+.user-dropdown-menu {
+  display: none;
+}
+
+.user-menu-container:hover .user-dropdown-menu,
+.user-dropdown-menu.is-open {
+  display: block;
 }

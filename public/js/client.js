@@ -139,8 +139,53 @@ function initAutoDismissAlerts() {
   }, 5000);
 }
 
+
+// Quản lý dropdown Menu người dùng: Hỗ trợ Click bật/tắt, Click bên ngoài để đóng, và giữ menu ổn định khi rê chuột
+function initUserMenuDropdown() {
+  const container = document.getElementById('user-menu-container');
+  const btn = document.getElementById('user-menu-btn');
+  const dropdown = document.getElementById('user-menu-dropdown');
+  const chevron = document.getElementById('user-menu-chevron');
+
+  if (!btn || !dropdown) return;
+
+  function toggleDropdown(forceState) {
+    const shouldOpen = typeof forceState === 'boolean' ? forceState : !dropdown.classList.contains('is-open');
+    if (shouldOpen) {
+      dropdown.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      if (chevron) chevron.classList.add('rotate-180');
+    } else {
+      dropdown.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      if (chevron) chevron.classList.remove('rotate-180');
+    }
+  }
+
+  // Click vào avatar/tên người dùng để mở hoặc đóng
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+
+  // Click bất kỳ đâu bên ngoài menu để đóng lại
+  document.addEventListener('click', (e) => {
+    if (container && !container.contains(e.target)) {
+      toggleDropdown(false);
+    }
+  });
+
+  // Đóng khi nhấn phím Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      toggleDropdown(false);
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  initVariantSelector();
+    initUserMenuDropdown();
+initVariantSelector();
   initQuantityControls();
   initAutoDismissAlerts();
 });

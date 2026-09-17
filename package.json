@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:init": "node scripts/init_db.js"
+    "db:init": "node scripts/init_db.js",
+    "test": "node scripts/test_endpoints.js && node scripts/test_ecommerce_flow.js",
+    "test:endpoints": "node scripts/test_endpoints.js",
+    "test:flow": "node scripts/test_ecommerce_flow.js"
   },
   "keywords": [
     "ecommerce",

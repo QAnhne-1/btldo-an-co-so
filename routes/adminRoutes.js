@@ -63,7 +63,7 @@ router.get('/dashboard', async (req, res) => {
 
     res.render('admin/dashboard', {
       layout: ADMIN_LAYOUT,
-      title: 'Bảng điều khiển quản trị - TechStore',
+      title: 'Bảng điều khiển quản trị - QZStore',
       metrics: {
         totalRevenue,
         totalOrders,
@@ -126,7 +126,7 @@ router.get('/products', async (req, res) => {
 
     res.render('admin/products', {
       layout: ADMIN_LAYOUT,
-      title: 'Quản lý sản phẩm - TechStore Admin',
+      title: 'Quản lý sản phẩm - QZStore Admin',
       products,
       categories,
       query: { q, category }
@@ -150,7 +150,7 @@ router.get('/products/new', async (req, res) => {
 
     res.render('admin/product_form', {
       layout: ADMIN_LAYOUT,
-      title: 'Thêm sản phẩm mới - TechStore Admin',
+      title: 'Thêm sản phẩm mới - QZStore Admin',
       product: null,
       variants: [],
       categories,
@@ -274,7 +274,7 @@ router.get('/products/:id/edit', async (req, res) => {
 
     res.render('admin/product_form', {
       layout: ADMIN_LAYOUT,
-      title: `Chỉnh sửa: ${product.name} - TechStore Admin`,
+      title: `Chỉnh sửa: ${product.name} - QZStore Admin`,
       product: { ...product, specifications },
       variants,
       categories,
@@ -425,7 +425,7 @@ router.get('/orders', async (req, res) => {
 
     res.render('admin/orders', {
       layout: ADMIN_LAYOUT,
-      title: 'Quản lý đơn hàng - TechStore Admin',
+      title: 'Quản lý đơn hàng - QZStore Admin',
       orders,
       currentStatus: status || 'all',
       query: q || ''
@@ -469,7 +469,7 @@ router.get('/orders/:id', async (req, res) => {
 
     res.render('admin/order_detail', {
       layout: ADMIN_LAYOUT,
-      title: `Chi tiết đơn ${order.order_code} - TechStore Admin`,
+      title: `Chi tiết đơn ${order.order_code} - QZStore Admin`,
       order,
       items
     });
@@ -679,7 +679,7 @@ router.get('/warranties', async (req, res) => {
 
     res.render('admin/warranties', {
       layout: ADMIN_LAYOUT,
-      title: 'Quản lý bảo hành điện tử - TechStore Admin',
+      title: 'Quản lý bảo hành điện tử - QZStore Admin',
       warranties,
       query: { q, status }
     });

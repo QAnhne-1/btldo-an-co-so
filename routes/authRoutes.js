@@ -14,7 +14,7 @@ router.get('/login', (req, res) => {
 
   res.render('auth/login', {
     layout: 'layouts/client_layout',
-    title: 'Đăng nhập tài khoản - TechStore',
+    title: 'Đăng nhập tài khoản - QZStore',
     redirect: req.query.redirect || ''
   });
 });
@@ -29,9 +29,16 @@ router.post('/login', async (req, res) => {
       return res.redirect(`/auth/login${redirect ? '?redirect=' + encodeURIComponent(redirect) : ''}`);
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const altEmail = cleanEmail.endsWith('@qzstore.com')
+      ? cleanEmail.replace('@qzstore.com', '@qzstore.local')
+      : cleanEmail.endsWith('@qzstore.local')
+      ? cleanEmail.replace('@qzstore.local', '@qzstore.com')
+      : cleanEmail;
+
     const [rows] = await pool.query(
-      'SELECT id, fullname, email, password, phone, role, address, status FROM users WHERE email = ? LIMIT 1',
-      [email.trim().toLowerCase()]
+      'SELECT id, fullname, email, password, phone, role, address, status FROM users WHERE email = ? OR email = ? LIMIT 1',
+      [cleanEmail, altEmail]
     );
 
     if (rows.length === 0) {
@@ -86,7 +93,7 @@ router.get('/register', (req, res) => {
 
   res.render('auth/register', {
     layout: 'layouts/client_layout',
-    title: 'Đăng ký tài khoản mới - TechStore'
+    title: 'Đăng ký tài khoản mới - QZStore'
   });
 });
 

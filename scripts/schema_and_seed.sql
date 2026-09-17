@@ -1,13 +1,13 @@
 -- ==============================================================================
 -- DATABASE CREATION & SETUP
--- Electronic Accessories E-Commerce System (tech_store_db)
+-- Electronic Accessories E-Commerce System (qz_store_db)
 -- ==============================================================================
 
-CREATE DATABASE IF NOT EXISTS `tech_store_db` 
+CREATE DATABASE IF NOT EXISTS `qz_store_db` 
 CHARACTER SET utf8mb4 
 COLLATE utf8mb4_unicode_ci;
 
-USE `tech_store_db`;
+USE `qz_store_db`;
 
 -- 1. USERS TABLE
 DROP TABLE IF EXISTS `warranties`;
@@ -133,13 +133,13 @@ CREATE INDEX `idx_warranties_phone` ON `warranties` (`customer_phone`);
 
 -- 1. SEED USERS
 -- Passwords:
--- admin@techstore.local : Admin@123456
--- staff@techstore.local : Staff@123456
+-- admin@qzstore.com : Admin@123456
+-- staff@qzstore.com : Staff@123456
 -- customer@gmail.com    : Customer@123456
 INSERT INTO `users` (`id`, `fullname`, `email`, `password`, `phone`, `role`, `address`, `status`) VALUES
-(1, 'Quản Trị Viên Hệ Thống', 'admin@techstore.local', '$2a$10$Q1AoM6yo.E20vHF04yHN/upcGy1zir.ZkqZPvbqoblI16r2S4ZwFS', '0901234567', 'admin', 'Tòa nhà TechStore, 123 Đường Công Nghệ, Quận 1, TP.HCM', 'active'),
-(2, 'Nhân Viên Bán Hàng', 'staff@techstore.local', '$2a$10$q41Gn599AusmQ3aTjC9MueOjj2RFaU/1s51qyS5VCfMvxjvUHu/.O', '0902345678', 'staff', 'Chi nhánh 2, 456 Đường Điện Biên Phủ, Quận Bình Thạnh, TP.HCM', 'active'),
-(3, 'Nguyễn Văn An (Khách Hàng)', 'customer@gmail.com', '$2a$10$mkTocrWwRf1PmKIiSYq2cOo3nBF3X3kFjw1/ZBRx7DPcgS4L1LKv.', '0987654321', 'customer', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'active');
+(1, 'Quản Trị Viên Hệ Thống', 'admin@qzstore.com', '$2a$10$Q1AoM6yo.E20vHF04yHN/upcGy1zir.ZkqZPvbqoblI16r2S4ZwFS', '0901234567', 'admin', 'Tòa nhà qzstore, 123 Đường Công Nghệ, Quận 1, TP.HCM', 'active'),
+(2, 'Nhân Viên Bán Hàng', 'staff@qzstore.com', '$2a$10$q41Gn599AusmQ3aTjC9MueOjj2RFaU/1s51qyS5VCfMvxjvUHu/.O', '0902345678', 'staff', 'Chi nhánh 2, 456 Đường Điện Biên Phủ, Quận Bình Thạnh, TP.HCM', 'active'),
+(3, 'Lê Quang Anh (Khách Hàng)', 'customer@gmail.com', '$2a$10$mkTocrWwRf1PmKIiSYq2cOo3nBF3X3kFjw1/ZBRx7DPcgS4L1LKv.', '0987654321', 'customer', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'active');
 
 -- 2. SEED CATEGORIES
 INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `icon`) VALUES
@@ -147,7 +147,8 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `icon`) VALUES
 (2, 'Củ sạc & Bộ sạc', 'cu-sac-bo-sac', 'Củ sạc nhanh GaN công suất cao từ 20W đến 140W an toàn', 'fa-bolt'),
 (3, 'Cáp sạc & Dây kết nối', 'cap-sac-day-ket-noi', 'Cáp Type-C, Lightning, bọc dù chống đứt, chuẩn sạc PD & QC', 'fa-network-wired'),
 (4, 'Pin sạc dự phòng', 'pin-sac-du-phong', 'Dung lượng từ 10.000mAh đến 30.000mAh, sạc nhanh hai chiều', 'fa-battery-full'),
-(5, 'Loa Bluetooth di động', 'loa-bluetooth-di-dong', 'Loa kháng nước IPX7, âm bass uy lực, pin siêu trâu', 'fa-volume-high');
+(5, 'Loa Bluetooth di động', 'loa-bluetooth-di-dong', 'Loa kháng nước IPX7, âm bass uy lực, pin siêu trâu', 'fa-volume-high'),
+(6, 'Phụ kiện khác', 'phu-kien-khac', 'Các phụ kiện công nghệ tiện ích, giá đỡ, bao da, túi bảo vệ, đầu chuyển đổi', 'fa-shapes');
 
 -- 3. SEED BRANDS
 INSERT INTO `brands` (`id`, `name`, `slug`, `logo`) VALUES
@@ -218,8 +219,8 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `variant_name`, `pric
 
 -- 6. SEED ORDERS
 INSERT INTO `orders` (`id`, `user_id`, `order_code`, `customer_name`, `customer_phone`, `shipping_address`, `payment_method`, `order_status`, `total_amount`, `note`, `created_at`) VALUES
-(1, 3, 'ORD-20260901-8192', 'Nguyễn Văn An', '0987654321', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'banking', 'completed', 8880000.00, 'Giao hàng giờ hành chính', DATE_SUB(NOW(), INTERVAL 10 DAY)),
-(2, 3, 'ORD-20260905-4421', 'Nguyễn Văn An', '0987654321', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'cod', 'shipping', 1190000.00, 'Gọi trước khi giao 15 phút', DATE_SUB(NOW(), INTERVAL 3 DAY)),
+(1, 3, 'ORD-20260901-8192', 'Lê Quang Anh', '0987654321', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'banking', 'completed', 8880000.00, 'Giao hàng giờ hành chính', DATE_SUB(NOW(), INTERVAL 10 DAY)),
+(2, 3, 'ORD-20260905-4421', 'Lê Quang Anh', '0987654321', 'Số 789 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM', 'cod', 'shipping', 1190000.00, 'Gọi trước khi giao 15 phút', DATE_SUB(NOW(), INTERVAL 3 DAY)),
 (3, NULL, 'ORD-20260910-1093', 'Trần Thị Bích', '0912334455', 'Số 12 Đường Hoàng Hoa Thám, Ba Đình, Hà Nội', 'cod', 'confirmed', 2790000.00, 'Khách vãng lai đặt mua qua web', DATE_SUB(NOW(), INTERVAL 1 DAY)),
 (4, NULL, 'ORD-20260911-9981', 'Phạm Minh Đức', '0977889900', 'Chung cư Sunrise City, Quận 7, TP.HCM', 'banking', 'pending', 5690000.00, 'Đã thanh toán chuyển khoản, chờ xác nhận', NOW());
 

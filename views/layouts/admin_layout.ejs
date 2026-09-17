@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title : 'TechStore Management - Admin Dashboard' %></title>
+  <title><%= (typeof title !== 'undefined' ? title : 'QZStore - Hệ Thống Quản Trị').replace(/TechStore/g, 'QZStore') %></title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -41,7 +41,7 @@
         <i class="fa-solid fa-bolt-lightning text-amber-300 text-sm"></i>
       </div>
       <div>
-        <span class="text-base font-black text-white tracking-wider">TECH<span class="text-indigo-400">ADMIN</span></span>
+        <span class="text-base font-black text-white tracking-wider">QZ<span class="text-indigo-400">STORE</span></span>
         <span class="block text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Hệ Thống Quản Trị</span>
       </div>
     </div>

@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 
     res.render('client/home', {
       layout: CLIENT_LAYOUT,
-      title: 'TechStore - Phụ Kiện Điện Tử & Âm Thanh Chính Hãng',
+      title: 'QZStore - Phụ Kiện Điện Tử & Âm Thanh Chính Hãng',
       categories,
       latestProducts,
       brands
@@ -130,7 +130,7 @@ router.get('/products', async (req, res) => {
 
     res.render('client/products', {
       layout: CLIENT_LAYOUT,
-      title: 'Tất cả sản phẩm phụ kiện - TechStore',
+      title: 'Tất cả sản phẩm phụ kiện - QZStore',
       categories,
       brands,
       products,
@@ -214,7 +214,7 @@ router.get('/product/:slug', async (req, res) => {
 
     res.render('client/product_detail', {
       layout: CLIENT_LAYOUT,
-      title: `${product.name} - TechStore`,
+      title: `${product.name} - QZStore`,
       product,
       specifications,
       variants,
@@ -275,7 +275,7 @@ router.get('/cart', async (req, res) => {
 
     res.render('client/cart', {
       layout: CLIENT_LAYOUT,
-      title: 'Giỏ hàng của bạn - TechStore',
+      title: 'Giỏ hàng của bạn - QZStore',
       cartItems,
       subtotal,
       shippingFee,
@@ -423,7 +423,7 @@ router.get('/checkout', async (req, res) => {
 
     res.render('client/checkout', {
       layout: CLIENT_LAYOUT,
-      title: 'Thanh toán đơn hàng - TechStore',
+      title: 'Thanh toán đơn hàng - QZStore',
       checkoutItems,
       subtotal,
       shippingFee,
@@ -595,7 +595,7 @@ router.get('/order-success', async (req, res) => {
 
     res.render('client/order_success', {
       layout: CLIENT_LAYOUT,
-      title: 'Đặt hàng thành công - TechStore',
+      title: 'Đặt hàng thành công - QZStore',
       order,
       items
     });
@@ -609,7 +609,7 @@ router.get('/order-success', async (req, res) => {
 router.get('/warranty', (req, res) => {
   res.render('client/warranty', {
     layout: CLIENT_LAYOUT,
-    title: 'Tra cứu bảo hành điện tử chính hãng - TechStore',
+    title: 'Tra cứu bảo hành điện tử chính hãng - QZStore',
     queryValue: '',
     warranties: null,
     searched: false
@@ -676,7 +676,7 @@ router.post('/warranty', async (req, res) => {
 
     res.render('client/warranty', {
       layout: CLIENT_LAYOUT,
-      title: 'Kết quả tra cứu bảo hành điện tử - TechStore',
+      title: 'Kết quả tra cứu bảo hành điện tử - QZStore',
       queryValue: cleanQuery,
       warranties: formattedWarranties,
       searched: true

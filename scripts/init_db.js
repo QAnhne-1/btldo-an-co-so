@@ -9,7 +9,7 @@ const mysql = require('mysql2/promise');
 
 async function initializeDatabase() {
   console.log('====================================================');
-  console.log('Khởi tạo và cài đặt Cơ sở dữ liệu TechStore MySQL...');
+  console.log('Khởi tạo và cài đặt Cơ sở dữ liệu qzStore MySQL...');
   console.log('====================================================');
 
   const dbConfig = {
@@ -33,13 +33,13 @@ async function initializeDatabase() {
     console.log('Đang thực thi các lệnh tạo bảng và nạp dữ liệu mẫu...');
     await connection.query(sqlContent);
 
-    console.log('-> Đã tạo database `tech_store_db` và 8 bảng thành công:');
+    console.log('-> Đã tạo database `qz_store_db` và 8 bảng thành công:');
     console.log('   - users, categories, brands, products, product_variants, orders, order_items, warranties');
     console.log('-> Đã nạp dữ liệu mẫu (Sản phẩm, Biến thể, Đơn hàng, Bảo hành điện tử).');
     console.log('====================================================');
     console.log('TÀI KHOẢN MẪU ĐỂ ĐĂNG NHẬP VÀ KIỂM THỬ:');
-    console.log('1. Admin:    admin@techstore.local  | Mật khẩu: Admin@123456');
-    console.log('2. Staff:    staff@techstore.local  | Mật khẩu: Staff@123456');
+    console.log('1. Admin:    admin@qzstore.com  | Mật khẩu: Admin@123456');
+    console.log('2. Staff:    staff@qzstore.com  | Mật khẩu: Staff@123456');
     console.log('3. Customer: customer@gmail.com     | Mật khẩu: Customer@123456');
     console.log('====================================================');
     console.log('Khởi tạo cơ sở dữ liệu hoàn tất 100%!');
