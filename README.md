@@ -1,6 +1,6 @@
-# ⚡ TechStore - Nền Tảng Thương Mại Điện Tử Phụ Kiện Điện Tử Đa Giao Diện
+# ⚡ QZStore - Nền Tảng Thương Mại Điện Tử Phụ Kiện Điện Tử Đa Giao Diện
 
-> Ứng dụng thương mại điện tử chuyên nghiệp bán phụ kiện công nghệ (tai nghe chống ồn, củ sạc GaN, cáp sạc bọc dù, pin sạc dự phòng, loa Bluetooth) với **2 giao diện độc lập (Client Storefront & Admin Dashboard)**, kiến trúc Monolith Express.js + EJS SSR, cơ sở dữ liệu MySQL 8.0+ và kiểm soát phân quyền RBAC nghiêm ngặt.
+> Ứng dụng thương mại điện tử chuyên nghiệp bán phụ kiện công nghệ (tai nghe chống ồn, củ sạc GaN, cáp sạc bọc dù, pin sạc dự phòng, loa Bluetooth) với **2 giao diện độc lập (Client Storefront & Admin Dashboard)**, kiến trúc Monolith Express.js + EJS SSR, tích hợp trợ lý AI Chatbot, cơ sở dữ liệu MySQL 8.0+ và kiểm soát phân quyền RBAC nghiêm ngặt.
 
 ---
 
@@ -12,6 +12,7 @@
   - Trang chủ (`/`), Lọc đa tiêu chí Faceted (`/products`), Chi tiết sản phẩm & Chọn biến thể động (`/product/:slug`).
   - Giỏ hàng (`/cart`), Đặt hàng (`/checkout`), Hoàn tất đơn (`/order-success`).
   - **Tra cứu bảo hành điện tử công khai (`/warranty`)**: Nhập Serial Number hoặc Số điện thoại để kiểm tra thời hạn và số ngày bảo hành còn lại.
+  - **Trợ lý AI Chatbot (`views/partials/chatbot.ejs`)**: Widget chat thông minh tư vấn phụ kiện, hỗ trợ giải đáp thắc mắc và hướng dẫn bảo hành thời gian thực.
 - **Giao diện Quản trị viên & Nhân viên (Admin Dashboard - `admin_layout.ejs`)**:
   - Giao diện SaaS Dark Slate Sidebar chuyên nghiệp. **Tuyệt đối bảo mật, chặn truy cập từ khách hàng (HTTP 403 Forbidden)**.
   - Bảng điều khiển tổng quan: Thẻ doanh thu, tổng đơn hàng, cảnh báo tồn kho thấp (≤ 5 chiếc), 10 đơn hàng gần nhất.
@@ -20,6 +21,7 @@
   - Quản lý danh sách Serial Number và bảo hành điện tử chính hãng.
 
 ### 2. Nghiệp Vụ Backend & CSDL Nâng Cao
+- **Lưu trữ Session kiên định (Persistent Session Store)**: Tích hợp `express-mysql-session` tự động lưu phiên làm việc vào bảng `sessions` trong MySQL, duy trì giỏ hàng và trạng thái đăng nhập ngay cả khi server restart.
 - **Transaction Checkout & Khóa Dòng (`FOR UPDATE`)**: Khi khách hàng đặt hàng, hệ thống mở giao dịch cơ sở dữ liệu, khóa dòng kiểm tra số lượng tồn kho thực tế, chống bán vượt tồn kho (overselling) và rollback an toàn nếu xảy ra lỗi.
 - **Tự động hóa vòng đời đơn hàng (Order Lifecycle Automations)**:
   - Khi Admin duyệt đơn sang `confirmed`: Hệ thống tự động trừ số lượng tồn kho tương ứng.
@@ -34,7 +36,9 @@
 - **Template Engine**: EJS, `express-ejs-layouts` (Server-Side Rendering)
 - **Styling & UI**: Tailwind CSS (CDN), FontAwesome 6, Google Fonts Plus Jakarta Sans
 - **Database**: MySQL 8.0+ / MariaDB (`mysql2/promise` Connection Pool)
+- **Session Store**: `express-mysql-session` (Lưu persistent session vào MySQL)
 - **Bảo mật**: `bcryptjs` (mã hóa mật khẩu), `express-session`, Middleware RBAC (`admin`, `staff`, `customer`)
+- **Tính năng nâng cao**: AI Chatbot Trợ lý tư vấn mua sắm & Bảo hành điện tử
 
 ---
 
@@ -59,13 +63,13 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=
-DB_NAME=tech_store_db
+DB_NAME=qz_store_db
 
 SESSION_SECRET=techstore_super_secure_secret_key_2026_!@#$%
 ```
 
 ### 4. Khởi Tạo Cơ Sở Dữ Liệu & Dữ Liệu Mẫu
-Chạy script tự động tạo database `tech_store_db`, 8 bảng quan hệ và nạp dữ liệu sản phẩm, biến thể, tài khoản mẫu:
+Chạy script tự động tạo database `qz_store_db`, 8 bảng quan hệ (cùng bảng `sessions` tự động) và nạp dữ liệu sản phẩm, biến thể, tài khoản mẫu:
 ```bash
 npm run db:init
 ```
@@ -90,8 +94,8 @@ Truy cập ứng dụng:
 
 | Vai trò | Email đăng nhập | Mật khẩu | Quyền hạn |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@techstore.local` | `Admin@123456` | Toàn quyền Storefront & Admin Dashboard |
-| **Staff** | `staff@techstore.local` | `Staff@123456` | Quản lý sản phẩm, đơn hàng |
+| **Admin** | `admin@qzstore.com` (hoặc `admin@techstore.local`) | `Admin@123456` | Toàn quyền Storefront & Admin Dashboard |
+| **Staff** | `staff@qzstore.com` (hoặc `staff@techstore.local`) | `Staff@123456` | Quản lý sản phẩm, đơn hàng |
 | **Customer** | `customer@gmail.com` | `Customer@123456` | Mua hàng (Bị chặn 403 khi vào Admin) |
 
 ---
@@ -108,11 +112,11 @@ Truy cập ứng dụng:
 │   ├── client/         # Các trang dành cho người dùng mua sắm
 │   ├── admin/          # Các trang quản trị hệ thống
 │   ├── auth/           # Giao diện Đăng nhập & Đăng ký
-│   └── partials/       # Flash alert messages & components
+│   └── partials/       # Flash alert messages, AI Chatbot widget
 ├── public/             # File tĩnh: CSS, JavaScript, Images
 ├── .env                # Biến môi trường
 ├── package.json        # Định nghĩa dependencies & scripts
-└── server.js           # Điểm khởi chạy ứng dụng Express
+└── server.js           # Điểm khởi chạy ứng dụng Express & Persistent Session
 ```
 
 ---
