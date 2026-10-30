@@ -1,12 +1,16 @@
 /**
  * Main Server Application Entry Point
- * TechStore - E-Commerce Monolith Application
+ * QZStore - E-Commerce Monolith Application
  */
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const expressLayouts = require('express-ejs-layouts');
+const mysql = require('mysql2/promise');
+
+// Session Store: Lưu trữ phiên làm việc vào MySQL thay vì RAM
+const MySQLStore = require('express-mysql-session')(session);
 
 // Middlewares
 const { isAuthenticated, checkRole, injectLocals } = require('./middleware/auth');
@@ -26,10 +30,37 @@ app.use(express.json());
 // 2. Cấu hình File tĩnh (Static Assets: CSS, JS, Images)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 3. Cấu hình Express Session
+// 3. Cấu hình MySQL Session Store (Persistent Sessions)
+// Session sẽ được lưu vào bảng `sessions` trong MySQL, giữ nguyên giỏ hàng
+// và trạng thái đăng nhập ngay cả khi server khởi động lại.
+const sessionStoreOptions = {
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: parseInt(process.env.DB_PORT, 10) || 3306,
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'qz_store_db',
+  charset: 'utf8mb4',
+  clearExpired: true,              // Tự động xóa session hết hạn
+  checkExpirationInterval: 900000, // Kiểm tra mỗi 15 phút (ms)
+  expiration: 1000 * 60 * 60 * 24 * 7, // Session tồn tại 7 ngày
+  createDatabaseTable: true,       // Tự động tạo bảng `sessions` nếu chưa có
+  schema: {
+    tableName: 'sessions',
+    columnNames: {
+      session_id: 'session_id',
+      expires: 'expires',
+      data: 'data'
+    }
+  }
+};
+
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
 app.use(
   session({
+    key: 'qzstore_session_id',
     secret: process.env.SESSION_SECRET || 'techstore_monolith_secret_key_default',
+    store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -67,7 +98,7 @@ app.use((req, res) => {
     layout: 'layouts/client_layout',
     title: '404 - Không tìm thấy trang',
     statusCode: 404,
-    message: 'Trang hoặc tài nguyên bạn yêu cầu không tồn tại trên hệ thống TechStore.',
+    message: 'Trang hoặc tài nguyên bạn yêu cầu không tồn tại trên hệ thống QZStore.',
     details: `Đường dẫn yêu cầu: ${req.originalUrl}`
   });
 });
@@ -87,9 +118,10 @@ app.use((err, req, res, next) => {
 // 9. Khởi chạy Server
 app.listen(PORT, () => {
   console.log('====================================================');
-  console.log(`🚀 TechStore Web Application đang chạy tại: http://localhost:${PORT}`);
+  console.log(`🚀 QZStore Web Application đang chạy tại: http://localhost:${PORT}`);
   console.log(`🛒 Giao diện Cửa hàng (Client Storefront): http://localhost:${PORT}/`);
   console.log(`🛡️ Giao diện Quản trị (Admin Dashboard):   http://localhost:${PORT}/admin/dashboard`);
   console.log(`🔍 Tra cứu bảo hành điện tử:              http://localhost:${PORT}/warranty`);
+  console.log(`💾 Session Store: MySQL Persistent (Bảng: sessions)`);
   console.log('====================================================');
 });

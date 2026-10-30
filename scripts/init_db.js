@@ -17,6 +17,7 @@ async function initializeDatabase() {
     port: parseInt(process.env.DB_PORT, 10) || 3306,
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || '',
+    charset: 'utf8mb4',
     multipleStatements: true
   };
 

@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= (typeof title !== 'undefined' ? title : 'QZStore - Phụ Kiện Điện Tử Cao Cấp').replace(/TechStore|QAStore/g, 'QZStore') %></title>
+  <title>
+    <%= typeof title !=='undefined' && title ? title : 'QZStore - Phụ Kiện Điện Tử Cao Cấp' %>
+  </title>
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -72,7 +74,8 @@
           </div>
           <div>
             <span
-              class="text-xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition">QZ<span class="text-indigo-600">STORE</span></span>
+              class="text-xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition">QZ<span
+                class="text-indigo-600">STORE</span></span>
             <span class="block text-[10px] tracking-wider uppercase font-semibold text-slate-400 -mt-1">Phụ Kiện Điện
               Tử</span>
           </div>
@@ -215,7 +218,8 @@
             <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white">
               <i class="fa-solid fa-bolt-lightning text-amber-300"></i>
             </div>
-            <span class="text-xl font-black text-white tracking-tight">QZ<span class="text-indigo-400">STORE</span></span>
+            <span class="text-xl font-black text-white tracking-tight">QZ<span
+                class="text-indigo-400">STORE</span></span>
           </div>
           <p class="text-slate-400 text-xs leading-relaxed">
             Hệ thống bán lẻ phụ kiện công nghệ, âm thanh, củ cáp sạc GaN và pin dự phòng chính hãng hàng đầu Việt Nam.
@@ -248,7 +252,8 @@
                 dung lượng lớn</a></li>
             <li><a href="/products?category=loa-bluetooth-di-dong" class="hover:text-amber-400 transition">Loa di động
                 Bluetooth kháng nước</a></li>
-            <li><a href="/products?category=phu-kien-khac" class="hover:text-amber-400 transition">Phụ kiện khác</a></li>
+            <li><a href="/products?category=phu-kien-khac" class="hover:text-amber-400 transition">Phụ kiện khác</a>
+            </li>
           </ul>
         </div>
 
@@ -301,6 +306,8 @@
   <!-- Client Script -->
   <script src="/js/client.js"></script>
   <%- typeof script !=='undefined' ? script : '' %>
+  <!-- AI Chatbot Floating Widget -->
+  <%- include('../partials/chatbot') %>
 </body>
 
 </html>

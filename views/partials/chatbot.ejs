@@ -1,0 +1,453 @@
+<!-- ============================================================================== -->
+<!-- QZStore AI Floating Chatbot Widget                                            -->
+<!-- Provides instant technical consultation, product recommendations, warranty   -->
+<!-- lookup, and order status support powered by Gemini AI with offline fallback.  -->
+<!-- ============================================================================== -->
+
+<div id="techstore-chatbot-widget" class="relative z-50 font-sans">
+  <!-- 1. Floating Trigger Button (Bottom-Right: fixed bottom-6 right-6 z-50) -->
+  <button id="chatbot-trigger-btn" type="button" aria-label="Mở khung chat hỗ trợ tư vấn QZStore AI"
+    class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-brand-600 via-indigo-600 to-brand-700 text-white shadow-xl shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-brand-300 group">
+
+    <!-- Chat Robot Icon (State: Closed) -->
+    <span id="chatbot-trigger-icon-chat"
+      class="transition-transform duration-300 group-hover:scale-110 flex items-center justify-center">
+      <i class="fa-solid fa-robot text-2xl"></i>
+    </span>
+
+    <!-- Close Icon (State: Opened) -->
+    <span id="chatbot-trigger-icon-close"
+      class="hidden transition-transform duration-300 group-hover:rotate-90 flex items-center justify-center">
+      <i class="fa-solid fa-xmark text-2xl"></i>
+    </span>
+
+    <!-- Notification Badge & Pulse Animation -->
+    <span id="chatbot-unread-badge" class="absolute -top-1 -right-1 flex h-5 w-5">
+      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+      <span
+        class="relative inline-flex rounded-full h-5 w-5 bg-red-500 text-[11px] font-bold text-white items-center justify-center shadow-sm">1</span>
+    </span>
+  </button>
+
+  <!-- 2. Floating Greeting Tooltip Bubble -->
+  <div id="chatbot-greeting-tooltip"
+    class="fixed bottom-24 right-6 z-40 bg-white/95 backdrop-blur-sm text-slate-800 px-4 py-2.5 rounded-2xl rounded-br-none shadow-xl border border-slate-200/80 text-xs font-medium max-w-[240px] transition-all duration-300 cursor-pointer flex items-center gap-2 select-none animate-bounce">
+    <span class="text-lg flex-shrink-0">👋</span>
+    <span class="leading-tight">Cần tư vấn phụ kiện, sạc nhanh hay tai nghe? Chat với <b>QZStore AI</b> ngay!</span>
+    <button id="chatbot-close-tooltip" type="button" class="text-slate-400 hover:text-slate-600 ml-1 p-0.5"
+      title="Đóng gợi ý">
+      <i class="fa-solid fa-xmark text-xs"></i>
+    </button>
+  </div>
+
+  <!-- 3. Interactive Chat Panel Popup -->
+  <div id="chatbot-panel"
+    class="fixed bottom-24 right-6 z-50 w-[380px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[590px] max-h-[calc(100vh-7.5rem)] bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden transition-all duration-300 origin-bottom-right hidden opacity-0 scale-95">
+
+    <!-- Chat Header (Bot name, status dot, minimize & close buttons) -->
+    <div
+      class="bg-gradient-to-r from-brand-600 via-indigo-600 to-brand-700 text-white p-3.5 px-4 flex items-center justify-between shadow-sm select-none">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div
+            class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white border border-white/30 shadow-inner">
+            <i class="fa-solid fa-headset text-lg"></i>
+          </div>
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-brand-600 rounded-full"></span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h3 class="font-bold text-sm tracking-wide text-white">QZStore AI Support</h3>
+            <span class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded font-medium">v1.5</span>
+          </div>
+          <p class="text-[11px] text-indigo-100 flex items-center gap-1">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Trực tuyến • Tư vấn kỹ thuật 24/7
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1">
+        <button id="chatbot-clear-btn" type="button" title="Xóa lịch sử cuộc trò chuyện"
+          class="w-8 h-8 rounded-lg hover:bg-white/15 text-indigo-100 hover:text-white transition flex items-center justify-center text-xs">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
+        <button id="chatbot-minimize-btn" type="button" title="Thu nhỏ khung chat"
+          class="w-8 h-8 rounded-lg hover:bg-white/15 text-indigo-100 hover:text-white transition flex items-center justify-center text-xs">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+        <button id="chatbot-close-btn" type="button" title="Đóng khung chat"
+          class="w-8 h-8 rounded-lg hover:bg-white/15 text-indigo-100 hover:text-white transition flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Scrollable Messages Area -->
+    <div id="chatbot-messages"
+      class="flex-1 overflow-y-auto p-4 space-y-3.5 text-sm bg-slate-50/75 scrollbar-thin scrollbar-thumb-slate-300">
+      <!-- Date Divider -->
+      <div class="text-center my-1">
+        <span class="text-[11px] bg-slate-200/80 text-slate-500 px-3 py-1 rounded-full font-medium">Hôm nay</span>
+      </div>
+
+      <!-- Welcome Bot Message -->
+      <div class="flex items-start gap-2.5 message-row bot-row">
+        <div
+          class="w-7 h-7 rounded-full bg-brand-600 text-white flex-shrink-0 flex items-center justify-center text-xs mt-0.5 shadow-sm">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div
+          class="max-w-[85%] bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm leading-relaxed text-[13px]">
+          <p class="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
+            <span>Xin chào bạn!</span> 👋
+          </p>
+          <p class="text-slate-600">
+            Tôi là chuyên viên tư vấn kỹ thuật ảo của <b>QZStore</b>. Bạn có thể hỏi tôi về thông số kỹ thuật (công suất
+            sạc GaN, tai nghe ANC), gợi ý phụ kiện, kiểm tra đơn hàng hoặc chính sách bảo hành nhé!
+          </p>
+
+          <div class="mt-3 pt-2.5 border-t border-slate-100">
+            <p class="text-[11px] font-medium text-slate-500 mb-1.5">💡 Câu hỏi thường gặp:</p>
+            <div class="flex flex-wrap gap-1.5">
+              <button type="button"
+                class="quick-prompt-btn text-left text-[11px] bg-brand-50 hover:bg-brand-100 text-brand-700 font-medium px-2.5 py-1 rounded-full border border-brand-200 transition"
+                data-prompt="Tư vấn tai nghe chống ồn tốt nhất hiện nay">
+                🎧 Tai nghe chống ồn tốt nhất?
+              </button>
+              <button type="button"
+                class="quick-prompt-btn text-left text-[11px] bg-brand-50 hover:bg-brand-100 text-brand-700 font-medium px-2.5 py-1 rounded-full border border-brand-200 transition"
+                data-prompt="Gợi ý củ sạc nhanh GaN 65W đang có sẵn">
+                ⚡ Củ sạc nhanh GaN 65W
+              </button>
+              <button type="button"
+                class="quick-prompt-btn text-left text-[11px] bg-brand-50 hover:bg-brand-100 text-brand-700 font-medium px-2.5 py-1 rounded-full border border-brand-200 transition"
+                data-prompt="Chính sách bảo hành và đổi trả của cửa hàng như thế nào?">
+                🛡️ Chính sách đổi trả & bảo hành
+              </button>
+              <button type="button"
+                class="quick-prompt-btn text-left text-[11px] bg-brand-50 hover:bg-brand-100 text-brand-700 font-medium px-2.5 py-1 rounded-full border border-brand-200 transition"
+                data-prompt="Hướng dẫn cách kiểm tra tình trạng đơn hàng">
+                📦 Kiểm tra đơn hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Animation / Loader Indicator -->
+    <div id="chatbot-typing" class="hidden px-4 py-2 bg-slate-50/90 border-t border-slate-100 flex items-center gap-2">
+      <div
+        class="w-6 h-6 rounded-full bg-brand-100 text-brand-600 flex items-center justify-center text-[10px] flex-shrink-0">
+        <i class="fa-solid fa-robot"></i>
+      </div>
+      <div class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-full shadow-sm">
+        <span class="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0s;"></span>
+        <span class="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.15s;"></span>
+        <span class="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce" style="animation-delay: 0.3s;"></span>
+        <span class="text-[11px] text-slate-500 ml-1 font-medium">QZStore AI đang soạn câu trả lời...</span>
+      </div>
+    </div>
+
+    <!-- Input Area (Text input + Send button) -->
+    <div class="p-3 bg-white border-t border-slate-200/90">
+      <form id="chatbot-form" class="flex items-center gap-2" onsubmit="return false;">
+        <div class="relative flex-1">
+          <input id="chatbot-input" type="text" maxlength="500" autocomplete="off"
+            placeholder="Nhập câu hỏi (ví dụ: tư vấn sạc nhanh iPhone)..."
+            class="w-full bg-slate-100/90 focus:bg-white text-slate-800 text-xs sm:text-sm rounded-xl pl-3.5 pr-8 py-2.5 border border-slate-200 focus:border-brand-500 focus:ring-2 focus:ring-brand-200 outline-none transition placeholder:text-slate-400" />
+          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"
+            title="Tư vấn thông minh">
+            <i class="fa-regular fa-comment-dots"></i>
+          </span>
+        </div>
+        <button id="chatbot-send-btn" type="button" aria-label="Gửi tin nhắn"
+          class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white flex items-center justify-center transition shadow-md shadow-brand-500/20 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed">
+          <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+      </form>
+      <div class="flex items-center justify-between text-[10px] text-slate-400 mt-2 px-1 select-none">
+        <span>Nhấn <b>Enter</b> để gửi</span>
+        <span class="flex items-center gap-1">
+          <i class="fa-solid fa-sparkles text-amber-500"></i> Powered by Gemini AI
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (() => {
+    // Elements
+    const widget = document.getElementById('techstore-chatbot-widget');
+    const triggerBtn = document.getElementById('chatbot-trigger-btn');
+    const iconChat = document.getElementById('chatbot-trigger-icon-chat');
+    const iconClose = document.getElementById('chatbot-trigger-icon-close');
+    const unreadBadge = document.getElementById('chatbot-unread-badge');
+    const tooltip = document.getElementById('chatbot-greeting-tooltip');
+    const closeTooltipBtn = document.getElementById('chatbot-close-tooltip');
+    const panel = document.getElementById('chatbot-panel');
+    const minimizeBtn = document.getElementById('chatbot-minimize-btn');
+    const closeBtn = document.getElementById('chatbot-close-btn');
+    const clearBtn = document.getElementById('chatbot-clear-btn');
+    const messagesBox = document.getElementById('chatbot-messages');
+    const typingIndicator = document.getElementById('chatbot-typing');
+    const form = document.getElementById('chatbot-form');
+    const input = document.getElementById('chatbot-input');
+    const sendBtn = document.getElementById('chatbot-send-btn');
+
+    let isOpen = false;
+    let isRequesting = false;
+
+    // Lịch sử hội thoại gửi kèm cho AI (để hiểu "mẫu thứ 2", "con Sony đó"...)
+    const HISTORY_LIMIT = 8;
+    let chatHistory = [];
+
+    // 1. Toggle Chat Popup
+    function toggleChat(forceOpen) {
+      if (typeof forceOpen === 'boolean') {
+        isOpen = forceOpen;
+      } else {
+        isOpen = !isOpen;
+      }
+
+      if (isOpen) {
+        panel.classList.remove('hidden');
+        // Trigger animation frame for transition
+        requestAnimationFrame(() => {
+          panel.classList.remove('opacity-0', 'scale-95');
+          panel.classList.add('opacity-100', 'scale-100');
+        });
+        iconChat.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+
+        // Dismiss badge and tooltip
+        if (unreadBadge) unreadBadge.classList.add('hidden');
+        if (tooltip) tooltip.classList.add('hidden');
+
+        // Focus input
+        setTimeout(() => input.focus(), 150);
+        scrollToBottom();
+      } else {
+        panel.classList.remove('opacity-100', 'scale-100');
+        panel.classList.add('opacity-0', 'scale-95');
+        setTimeout(() => {
+          if (!isOpen) panel.classList.add('hidden');
+        }, 300);
+        iconChat.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+      }
+    }
+
+    // Event Listeners for Open/Close
+    triggerBtn.addEventListener('click', () => toggleChat());
+    if (closeBtn) closeBtn.addEventListener('click', () => toggleChat(false));
+    if (minimizeBtn) minimizeBtn.addEventListener('click', () => toggleChat(false));
+    if (tooltip) {
+      tooltip.addEventListener('click', (e) => {
+        if (e.target.closest('#chatbot-close-tooltip')) {
+          tooltip.classList.add('hidden');
+        } else {
+          toggleChat(true);
+        }
+      });
+    }
+    if (closeTooltipBtn) {
+      closeTooltipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tooltip.classList.add('hidden');
+      });
+    }
+
+    // Auto scroll to bottom
+    function scrollToBottom() {
+      requestAnimationFrame(() => {
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+      });
+    }
+
+    // Format Text / Markdown to safe HTML
+    function formatReply(text) {
+      if (!text) return '';
+
+      // Escape HTML first to prevent XSS
+      let safe = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Code blocks
+      safe = safe.replace(/`([^`]+)`/g, '<code class="bg-slate-100 text-brand-600 px-1.5 py-0.5 rounded text-xs font-mono font-semibold">$1</code>');
+
+      // Bold **text**
+      safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>');
+
+      // Italic *text*
+      safe = safe.replace(/\*([^*]+)\*/g, '<em class="text-slate-700">$1</em>');
+
+      // Bullet points (- or * at start of lines)
+      safe = safe.replace(/(?:^|\n)[-*]\s+(.+)/g, '<li class="ml-4 list-disc text-slate-700 my-0.5">$1</li>');
+
+      // Convert newlines to breaks
+      safe = safe.replace(/\n/g, '<br>');
+
+      // Format relative store links
+      safe = safe.replace(/(\/[a-zA-Z0-9_\-\/?=&]+)/g, (match) => {
+        if (match.startsWith('/products') || match.startsWith('/product/') || match.startsWith('/warranty') || match.startsWith('/cart') || match.startsWith('/checkout')) {
+          return '<a href="' + match + '" class="text-brand-600 underline font-medium hover:text-brand-800">' + match + '</a>';
+        }
+        return match;
+      });
+
+      return safe;
+    }
+
+    // Render quick-reply chips (sản phẩm gợi ý) bên dưới tin nhắn bot.
+    // Dùng textContent/setAttribute thay vì innerHTML để tránh XSS từ tên sản phẩm.
+    function renderSuggestions(bubble, suggestions) {
+      if (!Array.isArray(suggestions) || suggestions.length === 0) return;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'mt-2.5 pt-2 border-t border-slate-100';
+
+      const title = document.createElement('p');
+      title.className = 'text-[11px] font-medium text-slate-500 mb-1.5';
+      title.textContent = '👉 Bấm để xem chi tiết:';
+      wrap.appendChild(title);
+
+      const list = document.createElement('div');
+      list.className = 'flex flex-wrap gap-1.5';
+
+      suggestions.slice(0, 4).forEach((s) => {
+        if (!s || !s.prompt) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'quick-prompt-btn text-left text-[11px] bg-brand-50 hover:bg-brand-100 text-brand-700 font-medium px-2.5 py-1 rounded-full border border-brand-200 transition';
+        btn.setAttribute('data-prompt', s.prompt);
+        btn.textContent = s.label || s.prompt;
+        list.appendChild(btn);
+      });
+
+      wrap.appendChild(list);
+      const timeEl = bubble.querySelector('.msg-time');
+      bubble.insertBefore(wrap, timeEl);
+    }
+
+    // Append a message bubble to the container
+    function appendMessage(sender, text, suggestions) {
+      const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      const row = document.createElement('div');
+      row.className = 'flex items-start gap-2.5 message-row ' + (sender === 'user' ? 'justify-end user-row' : 'bot-row');
+
+      if (sender === 'user') {
+        const sanitized = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        row.innerHTML = `
+        <div class="max-w-[85%] bg-gradient-to-r from-brand-600 to-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-sm text-[13px] leading-relaxed break-words">
+          <p>${sanitized}</p>
+          <span class="text-[10px] text-indigo-200 block text-right mt-1 font-light">${time}</span>
+        </div>
+      `;
+      } else {
+        row.innerHTML = `
+        <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex-shrink-0 flex items-center justify-center text-xs mt-0.5 shadow-sm">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <div class="bot-bubble max-w-[85%] bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm leading-relaxed text-[13px] break-words">
+          <div class="prose prose-sm max-w-none">${formatReply(text)}</div>
+          <span class="msg-time text-[10px] text-slate-400 block mt-1.5 font-light">${time}</span>
+        </div>
+      `;
+        renderSuggestions(row.querySelector('.bot-bubble'), suggestions);
+      }
+
+      messagesBox.appendChild(row);
+      scrollToBottom();
+    }
+
+    // Handle Sending Message to Backend POST /api/chat
+    async function sendMessage(messageText) {
+      const text = (messageText || input.value || '').trim();
+      if (!text || isRequesting) return;
+
+      // Reset input
+      input.value = '';
+      appendMessage('user', text);
+
+      // Show typing loader & disable send
+      isRequesting = true;
+      sendBtn.disabled = true;
+      typingIndicator.classList.remove('hidden');
+      scrollToBottom();
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: text, history: chatHistory.slice(-HISTORY_LIMIT) })
+        });
+
+        const data = await response.json();
+
+        typingIndicator.classList.add('hidden');
+        isRequesting = false;
+        sendBtn.disabled = false;
+
+        if (response.ok && data.reply) {
+          appendMessage('bot', data.reply, data.suggestions);
+          chatHistory.push({ role: 'user', text }, { role: 'model', text: data.reply });
+          if (chatHistory.length > HISTORY_LIMIT * 2) chatHistory = chatHistory.slice(-HISTORY_LIMIT);
+        } else {
+          const errorMsg = data.reply || data.error || 'Hệ thống AI đang bận xử lý, bạn vui lòng thử lại sau giây lát nhé!';
+          appendMessage('bot', errorMsg);
+        }
+      } catch (err) {
+        console.error('Chatbot API Error:', err);
+        typingIndicator.classList.add('hidden');
+        isRequesting = false;
+        sendBtn.disabled = false;
+        appendMessage('bot', '⚠️ Không thể kết nối tới máy chủ tư vấn. Bạn vui lòng kiểm tra kết nối mạng hoặc liên hệ Hotline **1900 1234** nhé.');
+      }
+
+      input.focus();
+    }
+
+    // Submit on button click
+    sendBtn.addEventListener('click', () => sendMessage());
+
+    // Submit on Enter key (without Shift)
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Quick Prompt Buttons handler
+    widget.addEventListener('click', (e) => {
+      const promptBtn = e.target.closest('.quick-prompt-btn');
+      if (promptBtn) {
+        const promptText = promptBtn.getAttribute('data-prompt');
+        if (promptText) {
+          sendMessage(promptText);
+        }
+      }
+    });
+
+    // Clear Chat History
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        const rows = messagesBox.querySelectorAll('.message-row');
+        rows.forEach((row, idx) => {
+          if (idx > 0) row.remove();
+        });
+        chatHistory = [];
+        scrollToBottom();
+      });
+    }
+  })();
+</script>

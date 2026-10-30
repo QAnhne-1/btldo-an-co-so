@@ -9,6 +9,9 @@ COLLATE utf8mb4_unicode_ci;
 
 USE `qz_store_db`;
 
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 -- 1. USERS TABLE
 DROP TABLE IF EXISTS `warranties`;
 DROP TABLE IF EXISTS `order_items`;

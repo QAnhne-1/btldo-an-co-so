@@ -121,6 +121,4 @@ Truy cập ứng dụng:
 
 ---
 
-## 📄 Bản Quyền & Giấy Phép
-Dự án được xây dựng phục vụ mục đích học tập, đồ án tốt nghiệp và phát triển thương mại điện tử chuyên nghiệp.
-Giấy phép: **ISC License**.
+

@@ -86,13 +86,21 @@ async function runE2E() {
   console.log('-> Đơn hàng ID trong CSDL:', orderId, '- Trạng thái ban đầu:', orderRows[0].order_status);
 
   // 5. ĐĂNG NHẬP TÀI KHOẢN ADMIN
-  console.log('\n[BƯỚC 5] Đăng nhập tài khoản Quản trị viên (admin@techstore.local)...');
-  const adminLoginRes = await fetch('http://localhost:3000/auth/login', {
+  console.log('\n[BƯỚC 5] Đăng nhập tài khoản Quản trị viên (admin@qzstore.com / admin@techstore.local)...');
+  let adminLoginRes = await fetch('http://localhost:3000/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ email: 'admin@techstore.local', password: 'Admin@123456' }),
+    body: new URLSearchParams({ email: 'admin@qzstore.com', password: 'Admin@123456' }),
     redirect: 'manual'
   });
+  if (adminLoginRes.status !== 302) {
+    adminLoginRes = await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ email: 'admin@techstore.local', password: 'Admin@123456' }),
+      redirect: 'manual'
+    });
+  }
   adminCookie = adminLoginRes.headers.get('set-cookie');
   console.log('-> Admin đăng nhập thành công!');
 
